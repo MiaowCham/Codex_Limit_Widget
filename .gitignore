@@ -1,0 +1,6 @@
+bin/
+obj/
+widget.log
+TODO.md
+show-limit.ps1
+start-widget.ps1
