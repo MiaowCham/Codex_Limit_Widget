@@ -15,7 +15,9 @@ if (-not $Version) {
 }
 if (-not $Version) { throw '无法从项目文件读取版本号。' }
 $Version = $Version -replace '^v', ''
-Write-Host "使用版本号: $Version" -ForegroundColor DarkCyan
+if ($Version -notmatch '^\d+\.\d+\.\d+$') { throw "版本号必须使用 x.y.z 格式: $Version" }
+$BinaryVersion = "$Version.0"
+Write-Host "使用版本号: $Version（产品版本 $BinaryVersion）" -ForegroundColor DarkCyan
 
 if (-not $Choice) {
     Write-Host '请选择构建类型:' -ForegroundColor Cyan
@@ -29,16 +31,47 @@ if (-not $Choice) {
 Set-Location $repoRoot
 
 function Publish-App([string]$OutputDirectory, [bool]$SingleFile) {
+    # dotnet publish 默认会先写入 bin，再复制到 -o 指定目录。
+    # 使用 obj 下的隔离目录作为临时构建输出，避免覆盖手动构建结果或留下重复产物。
+    $isolatedBuildOutput = Join-Path $repoRoot 'obj\build-script-output'
+
     if (Test-Path $OutputDirectory) { Remove-Item -Recurse -Force -LiteralPath $OutputDirectory }
-    dotnet publish $projectPath -c Release -r win-x64 --self-contained false `
-        -p:PublishSingleFile=$($SingleFile.ToString().ToLowerInvariant()) `
-        -p:DebugType=None -p:DebugSymbols=false `
-        -p:Version=$Version -p:InformationalVersion=$Version `
-        -p:AssemblyVersion="$Version.0" -p:FileVersion="$Version.0" `
-        -o $OutputDirectory
-    if ($LASTEXITCODE -ne 0) { throw "dotnet publish 失败，退出码 $LASTEXITCODE。" }
-    $pdbFiles = @(Get-ChildItem -Recurse -File $OutputDirectory -Filter *.pdb -ErrorAction SilentlyContinue)
-    if ($pdbFiles.Count -gt 0) { throw "发布目录中发现 PDB: $($pdbFiles.FullName -join ', ')" }
+    if (Test-Path $isolatedBuildOutput) { Remove-Item -Recurse -Force -LiteralPath $isolatedBuildOutput }
+
+    try {
+        dotnet publish $projectPath -c Release -r win-x64 --self-contained false `
+            -p:BaseOutputPath="$isolatedBuildOutput\" `
+            -p:PublishSingleFile=$($SingleFile.ToString().ToLowerInvariant()) `
+            -p:DebugType=None -p:DebugSymbols=false `
+            -p:Version=$Version -p:InformationalVersion=$BinaryVersion `
+            -p:AssemblyVersion=$BinaryVersion -p:FileVersion=$BinaryVersion `
+            -o $OutputDirectory
+        if ($LASTEXITCODE -ne 0) { throw "dotnet publish 失败，退出码 $LASTEXITCODE。" }
+
+        $pdbFiles = @(Get-ChildItem -Recurse -File $OutputDirectory -Filter *.pdb -ErrorAction SilentlyContinue)
+        if ($pdbFiles.Count -gt 0) { throw "发布目录中发现 PDB: $($pdbFiles.FullName -join ', ')" }
+
+        $app = Get-Item (Join-Path $OutputDirectory 'CodexLimitWidget.exe')
+        if ($app.VersionInfo.ProductVersion -ne $BinaryVersion) {
+            throw "软件产品版本不正确: $($app.VersionInfo.ProductVersion)，预期 $BinaryVersion。"
+        }
+        if ($app.VersionInfo.FileVersion -ne $BinaryVersion) {
+            throw "软件文件版本不正确: $($app.VersionInfo.FileVersion)，预期 $BinaryVersion。"
+        }
+
+        $assemblyPath = Join-Path $OutputDirectory 'CodexLimitWidget.dll'
+        if (Test-Path $assemblyPath) {
+            $assemblyVersion = [System.Reflection.AssemblyName]::GetAssemblyName($assemblyPath).Version.ToString()
+            if ($assemblyVersion -ne $BinaryVersion) {
+                throw "程序集版本不正确: $assemblyVersion，预期 $BinaryVersion。"
+            }
+        }
+    }
+    finally {
+        if (Test-Path $isolatedBuildOutput) {
+            Remove-Item -Recurse -Force -LiteralPath $isolatedBuildOutput
+        }
+    }
 }
 
 function Resolve-Iscc {

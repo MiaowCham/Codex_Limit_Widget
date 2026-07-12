@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing.Drawing2D;
 using System.Runtime.InteropServices;
+using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -13,6 +14,22 @@ namespace CodexLimitWidget;
 internal static class Program
 {
     private static readonly string LogPath = Path.Combine(AppContext.BaseDirectory, "widget.log");
+
+    /// <summary>面向用户的三段版本号，来源于程序集 InformationalVersion。</summary>
+    internal static string Version { get; } = ResolveDisplayVersion();
+
+    private static string ResolveDisplayVersion()
+    {
+        var assembly = Assembly.GetEntryAssembly();
+        var informationalVersion = assembly
+            ?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+            ?.InformationalVersion;
+
+        var versionText = informationalVersion?.Split('+', 2)[0];
+        return System.Version.TryParse(versionText, out var version)
+            ? version.ToString(3)
+            : assembly?.GetName().Version?.ToString(3) ?? "?.?.?";
+    }
 
     [STAThread]
     private static int Main(string[] args)
@@ -97,8 +114,8 @@ internal static class Program
 
     private static int ShowHelp()
     {
-        Console.WriteLine("""
-        CodexLimitWidget
+        Console.WriteLine($"""
+        CodexLimitWidget {Version}
 
         用法:
           CodexLimitWidget status
@@ -171,7 +188,7 @@ internal sealed class CodexAppServerClient : IDisposable
                 clientInfo = new
                 {
                     name = "codex-limit-widget",
-                    version = "0.3.0",
+                    version = Program.Version,
                 },
                 capabilities = new
                 {
@@ -792,11 +809,12 @@ internal sealed class WidgetForm : Form, IMessageFilter
         _trayMenu.Items.Add(_showMenuItem);
         _trayMenu.Items.Add("刷新", null, async (_, _) => await RefreshSnapshotAsync());
         _trayMenu.Items.Add(new ToolStripSeparator());
+        _trayMenu.Items.Add(new ToolStripMenuItem($"版本 {Program.Version}") { Enabled = false });
         _trayMenu.Items.Add("退出", null, (_, _) => Close());
 
         _applicationIcon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
         _notifyIcon.Icon = _applicationIcon ?? SystemIcons.Application;
-        _notifyIcon.Text = "Codex Limit Widget";
+        _notifyIcon.Text = $"Codex Limit Widget {Program.Version}";
         _notifyIcon.ContextMenuStrip = _trayMenu;
         _notifyIcon.DoubleClick += (_, _) =>
         {

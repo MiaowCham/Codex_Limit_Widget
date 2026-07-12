@@ -48,7 +48,7 @@ jobs:
             -p:PublishSingleFile=false `
             -p:DebugType=None -p:DebugSymbols=false `
             -p:Version=${{ steps.version.outputs.value }} `
-            -p:InformationalVersion=${{ steps.version.outputs.value }} `
+            -p:InformationalVersion=${{ steps.version.outputs.value }}.0 `
             -p:AssemblyVersion=${{ steps.version.outputs.value }}.0 `
             -p:FileVersion=${{ steps.version.outputs.value }}.0 `
             -o publish/release
@@ -62,7 +62,7 @@ jobs:
             -p:PublishSingleFile=true `
             -p:DebugType=None -p:DebugSymbols=false `
             -p:Version=${{ steps.version.outputs.value }} `
-            -p:InformationalVersion=${{ steps.version.outputs.value }} `
+            -p:InformationalVersion=${{ steps.version.outputs.value }}.0 `
             -p:AssemblyVersion=${{ steps.version.outputs.value }}.0 `
             -p:FileVersion=${{ steps.version.outputs.value }}.0 `
             -o publish/single-file
@@ -76,11 +76,17 @@ jobs:
             throw "Unexpected PDB files: $($pdbFiles.FullName -join ', ')"
           }
           $app = Get-Item publish/release/CodexLimitWidget.exe
-          if ($app.VersionInfo.ProductVersion -ne '${{ steps.version.outputs.value }}') {
+          if ($app.VersionInfo.ProductVersion -ne '${{ steps.version.outputs.value }}.0') {
             throw "Unexpected product version: $($app.VersionInfo.ProductVersion)"
           }
           if ($app.VersionInfo.FileVersion -ne '${{ steps.version.outputs.value }}.0') {
             throw "Unexpected file version: $($app.VersionInfo.FileVersion)"
+          }
+          $assemblyVersion = [System.Reflection.AssemblyName]::GetAssemblyName(
+            (Resolve-Path publish/release/CodexLimitWidget.dll)
+          ).Version.ToString()
+          if ($assemblyVersion -ne '${{ steps.version.outputs.value }}.0') {
+            throw "Unexpected assembly version: $assemblyVersion"
           }
 
       - name: Build installer

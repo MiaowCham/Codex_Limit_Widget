@@ -6,6 +6,7 @@
 #define MyAppExeName "CodexLimitWidget.exe"
 #define MyAppSourceDir "..\publish\release"
 #define MyAppIconPath "..\icon.ico"
+#define MyAppLicensePath "..\LICENSE"
 #define DotNetDownloadURL "https://dotnet.microsoft.com/download/dotnet/10.0"
 
 [Setup]
@@ -21,6 +22,7 @@ AllowNoIcons=yes
 OutputDir=..\dist
 OutputBaseFilename=CodexLimitWidget-{#MyAppVersion}-Setup
 SetupIconFile={#MyAppIconPath}
+LicenseFile={#MyAppLicensePath}
 UninstallDisplayIcon={app}\{#MyAppExeName}
 Compression=lzma2/ultra64
 SolidCompression=yes
@@ -34,6 +36,7 @@ Name: "desktopicon"; Description: "Create a desktop shortcut"; GroupDescription:
 
 [Files]
 Source: "{#MyAppSourceDir}\*"; DestDir: "{app}"; Excludes: "*.pdb"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#MyAppLicensePath}"; DestDir: "{app}"; DestName: "LICENSE"; Flags: ignoreversion
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"
