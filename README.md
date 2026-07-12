@@ -33,6 +33,23 @@
  dotnet run -- gui --interval 60
 ```
 
+## Release 与安装包
+
+项目使用 Inno Setup 6 生成 Windows 安装包：
+
+```powershell
+# Release 发布（框架依赖、不含 PDB）
+.\installer\build.ps1 -Choice 2
+
+# Release 单文件发布（框架依赖、不含 PDB）
+.\installer\build.ps1 -Choice 3
+
+# 发布并生成安装包
+.\installer\build.ps1 -Choice 4
+```
+
+安装包输出到 `dist`，发布文件输出到 `publish`。安装包需要目标电脑具有 .NET 10 Desktop Runtime。
+
 ## 当前界面说明
 
 - 左键拖动窗口

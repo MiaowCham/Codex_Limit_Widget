@@ -1,6 +1,8 @@
 bin/
 obj/
 widget.log
+publish/
+dist/
 TODO.md
 show-limit.ps1
 start-widget.ps1

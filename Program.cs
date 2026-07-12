@@ -562,6 +562,7 @@ internal sealed class WidgetForm : Form, IMessageFilter
         Checked = true,
     };
     private readonly ToolTip _toolTip = new();
+    private Icon? _applicationIcon;
 
     private readonly UsageBadgeLabel _badgeLabel = new();
     private readonly Label _headlineLabel = new();
@@ -622,6 +623,7 @@ internal sealed class WidgetForm : Form, IMessageFilter
     {
         _notifyIcon.Visible = false;
         _notifyIcon.Dispose();
+        _applicationIcon?.Dispose();
         _trayMenu.Dispose();
         _toolTip.Dispose();
         _timer.Dispose();
@@ -792,7 +794,8 @@ internal sealed class WidgetForm : Form, IMessageFilter
         _trayMenu.Items.Add(new ToolStripSeparator());
         _trayMenu.Items.Add("退出", null, (_, _) => Close());
 
-        _notifyIcon.Icon = SystemIcons.Application;
+        _applicationIcon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
+        _notifyIcon.Icon = _applicationIcon ?? SystemIcons.Application;
         _notifyIcon.Text = "Codex Limit Widget";
         _notifyIcon.ContextMenuStrip = _trayMenu;
         _notifyIcon.DoubleClick += (_, _) =>
@@ -940,19 +943,17 @@ internal sealed class WidgetForm : Form, IMessageFilter
         try
         {
             SetBusy();
-            var snapshot = await Task.Run(() =>
+            var previous = _lastSuccessfulUsedPercent;
+            var snapshot = await Task.Run(ReadSnapshotWithRecovery);
+            if (previous is int previousValue &&
+                snapshot.Primary.UsedPercent is int currentValue &&
+                currentValue < previousValue)
             {
-                var first = ReadSnapshotWithRecovery();
-                if (_lastSuccessfulUsedPercent is int previous &&
-                    first.Primary.UsedPercent is int current &&
-                    current < previous)
-                {
-                    Program.LogInfo($"Primary used percent dropped from {previous}% to {current}%; reading once more to confirm reset.");
-                    return ReadSnapshotWithRecovery();
-                }
+                Program.LogInfo($"Primary used percent dropped from {previousValue}% to {currentValue}%; waiting one second before an unconditional confirmation read.");
+                await Task.Delay(TimeSpan.FromSeconds(1));
+                snapshot = await Task.Run(ReadSnapshotWithRecovery);
+            }
 
-                return first;
-            });
             ApplySnapshot(snapshot);
         }
         catch (Exception ex)
