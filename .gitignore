@@ -3,6 +3,16 @@ obj/
 widget.log
 publish/
 dist/
+*.log
+.vs/
+.idea/
+TestResults/
+coverage/
+*.user
+*.suo
+.env
+.env.*
+.DS_Store
 TODO.md
 show-limit.ps1
 start-widget.ps1
