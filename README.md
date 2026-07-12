@@ -62,7 +62,7 @@ dotnet run --project CodexLimitWidget.App -- --interval 60
 The display language follows the system by default. Override it for a launch with `--language`, for example:
 
 ```powershell
-dotnet run --project CodexLimitWidget.App -- --language ja-JP
+dotnet run --project CodexLimitWidget.App -- --language JP
 ```
 
 Supported translations are English, Simplified Chinese, Traditional Chinese, and Japanese. Unsupported cultures fall back to English.

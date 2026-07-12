@@ -8,7 +8,8 @@ public static class Localization
     {
         try
         {
-            var culture = CultureInfo.GetCultureInfo(cultureName, predefinedOnly: true);
+            var normalizedCultureName = cultureName.Equals("JP", StringComparison.OrdinalIgnoreCase) ? "ja-JP" : cultureName;
+            var culture = CultureInfo.GetCultureInfo(normalizedCultureName, predefinedOnly: true);
             CultureInfo.DefaultThreadCurrentCulture = culture;
             CultureInfo.DefaultThreadCurrentUICulture = culture;
             CultureInfo.CurrentCulture = culture;

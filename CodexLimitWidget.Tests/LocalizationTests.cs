@@ -117,8 +117,8 @@ public sealed class LocalizationTests
         var previousDefaultCulture = CultureInfo.DefaultThreadCurrentCulture;
         try
         {
-            Assert.True(Localization.TrySetCulture("en-US"));
-            Assert.Equal("en-US", CultureInfo.CurrentUICulture.Name);
+            Assert.True(Localization.TrySetCulture("JP"));
+            Assert.Equal("ja-JP", CultureInfo.CurrentUICulture.Name);
             Assert.False(Localization.TrySetCulture("not-a-culture"));
         }
         finally
