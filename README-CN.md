@@ -60,16 +60,24 @@ dotnet run --project CodexLimitWidget.App -- --interval 60
 
 `--interval` 的单位为秒，可设置为 `1` 至 `86400`，默认值为 `60`。
 
+程序默认跟随系统显示语言，也可通过 `--language` 参数为单次启动指定语言：
+
+```powershell
+dotnet run --project CodexLimitWidget.App -- --language JP
+```
+
+目前支持英文、简体中文、繁体中文和日文；未提供翻译的语言会回退到英文。`JP` 是日文 `ja-JP` 的简写。
+
 ### 查询一次
 
 ```powershell
-dotnet run --project CodexLimitWidget.Cli -- status
+dotnet run --project CodexLimitWidget.Cli -- status --language en-US
 ```
 
 ### 持续查询
 
 ```powershell
-dotnet run --project CodexLimitWidget.Cli -- watch --interval 60
+dotnet run --project CodexLimitWidget.Cli -- watch --interval 60 --language zh-Hant
 ```
 
 按 `Ctrl+C` 停止持续查询。
