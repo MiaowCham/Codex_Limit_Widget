@@ -11,7 +11,7 @@ on:
       version:
         description: "打包版本号（x.y.z；可选 v 前缀）"
         required: true
-        default: "0.2.1"
+        default: "0.2.2"
         type: string
 
 jobs:
@@ -99,24 +99,5 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: "CodexLimitWidget-${{ matrix.rid }}-app"
-          path: dist/*.app
-          if-no-files-found: error
-
-  package-macos-both-architectures:
-    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
-    needs: verify
-    runs-on: macos-latest
-    env:
-      PACKAGE_VERSION: ${{ github.event_name == 'workflow_dispatch' && inputs.version || github.ref_name }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: "10.0.x"
-      - name: Build separately signed Apple Silicon and Intel apps
-        run: printf '1\n3\n2\n%s\n' "${PACKAGE_VERSION#v}" | bash installer/build-macos.sh
-      - uses: actions/upload-artifact@v4
-        with:
-          name: CodexLimitWidget-osx-both-architectures-app
           path: dist/*.app
           if-no-files-found: error

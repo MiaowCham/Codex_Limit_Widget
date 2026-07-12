@@ -68,9 +68,8 @@ esac
 echo '选择 CPU 架构：'
 echo '  1) Apple Silicon（osx-arm64）'
 echo '  2) Intel（osx-x64）'
-echo '  3) 两种架构分别打包'
-architecture_choice="$(choose '输入 1/2/3' 1)"
-case "$architecture_choice" in 1|2|3) ;; *) echo '无效的架构选择。' >&2; exit 2 ;; esac
+architecture_choice="$(choose '输入 1/2' 1)"
+case "$architecture_choice" in 1|2) ;; *) echo '无效的架构选择。' >&2; exit 2 ;; esac
 
 echo '选择输出：'
 echo '  1) .app'
@@ -98,5 +97,4 @@ build_and_package() {
 case "$architecture_choice" in
   1) build_and_package osx-arm64 osx-arm64 ;;
   2) build_and_package osx-x64 osx-x64 ;;
-  3) build_and_package osx-arm64 osx-arm64; build_and_package osx-x64 osx-x64 ;;
 esac

@@ -19,13 +19,34 @@ public partial class MainWindow : Window
     private readonly CancellationTokenSource _closing = new();
     private const uint WmNcLeftButtonDown = 0x00A1;
     private const nuint HtCaption = 2;
-    public MainWindow() { InitializeComponent(); _logger = Program.Logger; _logger.Info("Main window constructed."); _provider = new CodexAppServerRateLimitProvider("0.1.0", logger: _logger); _viewModel = new MainWindowViewModel(_provider, _logger); DataContext = _viewModel; _timer = new DispatcherTimer(TimeSpan.FromSeconds(Program.RefreshIntervalSeconds), DispatcherPriority.Background, (_, _) => QueueRefresh("timer")); Opened += (_, _) => { _logger.Info("Main window opened."); PositionAtTopRight(); _timer.Start(); QueueRefresh("startup"); }; Closed += async (_, _) => { _logger.Info("Main window closing."); _timer.Stop(); _closing.Cancel(); await _provider.DisposeAsync(); _closing.Dispose(); }; }
+    public MainWindow() { InitializeComponent(); _logger = Program.Logger; _logger.Info("Main window constructed."); _provider = new CodexAppServerRateLimitProvider(Program.ApplicationVersion, logger: _logger); _viewModel = new MainWindowViewModel(_provider, _logger); DataContext = _viewModel; _timer = new DispatcherTimer(TimeSpan.FromSeconds(Program.RefreshIntervalSeconds), DispatcherPriority.Background, (_, _) => QueueRefresh("timer")); Opened += (_, _) => { _logger.Info("Main window opened."); PositionAtTopRight(); _timer.Start(); QueueRefresh("startup"); }; Closed += async (_, _) => { _logger.Info("Main window closing."); _timer.Stop(); _closing.Cancel(); await _provider.DisposeAsync(); _closing.Dispose(); }; }
     private void QueueRefresh(string source)
     {
         _logger.Info($"Refresh queued by {source}.");
         _ = RefreshInBackgroundAsync();
     }
     internal void QueueRefreshFromTray() => QueueRefresh("tray");
+    internal bool ToggleVisibilityFromTray()
+    {
+        if (IsVisible)
+        {
+            Hide();
+            _logger.Info("Main window hidden from tray menu.");
+            return false;
+        }
+        Show();
+        Activate();
+        _logger.Info("Main window shown from tray menu.");
+        return true;
+    }
+    internal bool ToggleTopmostFromTray()
+    {
+        Topmost = !Topmost;
+        PinIcon.Stroke = Topmost ? Brushes.White : Brush.Parse("#94A3B8");
+        ToolTip.SetTip(PinButton, Topmost ? "取消置顶" : "启用置顶");
+        _logger.Info($"Topmost changed from tray menu; enabled={Topmost}.");
+        return Topmost;
+    }
     private async Task RefreshInBackgroundAsync()
     {
         try { await _viewModel.RefreshAsync(_closing.Token); }
@@ -34,9 +55,7 @@ public partial class MainWindow : Window
     private void Refresh_Click(object? sender, RoutedEventArgs e) => QueueRefresh("button");
     private void Pin_Click(object? sender, RoutedEventArgs e)
     {
-        Topmost = !Topmost;
-        PinIcon.Stroke = Topmost ? Brushes.White : Brush.Parse("#94A3B8");
-        ToolTip.SetTip(PinButton, Topmost ? "取消置顶" : "启用置顶");
+        ToggleTopmostFromTray();
     }
     private void Close_Click(object? sender, RoutedEventArgs e) => Close();
     private void Surface_PointerPressed(object? sender, PointerPressedEventArgs e)
