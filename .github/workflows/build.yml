@@ -19,39 +19,72 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: "10.0.x"
-      - run: dotnet restore CodexLimitWidget.slnx
-      - run: dotnet build CodexLimitWidget.slnx -c Release --no-restore
+        with: { dotnet-version: "10.0.x" }
+      - run: dotnet build CodexLimitWidget.slnx -c Release
       - run: dotnet test CodexLimitWidget.slnx -c Release --no-build
 
-  publish:
+  package-windows:
     if: startsWith(github.ref, 'refs/tags/v')
     needs: verify
-    permissions:
-      contents: write
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: windows-latest
-            rid: win-x64
-          - os: ubuntu-latest
-            rid: linux-x64
-          - os: macos-latest
-            rid: osx-arm64
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: "10.0.x"
-      - name: Publish App and CLI
-        run: |
-          dotnet publish CodexLimitWidget.App/CodexLimitWidget.App.csproj -c Release -r ${{ matrix.rid }} --self-contained true -p:PublishSingleFile=true -o publish/${{ matrix.rid }}/app
-          dotnet publish CodexLimitWidget.Cli/CodexLimitWidget.Cli.csproj -c Release -r ${{ matrix.rid }} --self-contained true -p:PublishSingleFile=true -o publish/${{ matrix.rid }}/cli
+        with: { dotnet-version: "10.0.x" }
+      - name: Install Inno Setup
+        run: choco install innosetup -y --no-progress
+      - name: Build self-contained installer
+        shell: pwsh
+        run: ./installer/build-windows.ps1 -Version "${{ github.ref_name }}"
       - uses: actions/upload-artifact@v4
-        with:
-          name: CodexLimitWidget-${{ matrix.rid }}
-          path: publish/${{ matrix.rid }}
-          if-no-files-found: error
+        with: { name: CodexLimitWidget-windows-x64-setup, path: dist/*.exe, if-no-files-found: error }
+
+  package-linux:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with: { dotnet-version: "10.0.x" }
+      - name: Build binary and Debian package
+        run: bash installer/build-linux.sh "${GITHUB_REF_NAME#v}"
+      - uses: actions/upload-artifact@v4
+        with: { name: CodexLimitWidget-linux-x64, path: "publish/linux-x64/app/CodexLimitWidget.App\ndist/*.deb", if-no-files-found: error }
+
+  package-macos:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: verify
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        rid: [osx-x64, osx-arm64]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with: { dotnet-version: "10.0.x" }
+      - name: Build ad-hoc signed app
+        run: bash installer/build-macos.sh "${GITHUB_REF_NAME#v}" "${{ matrix.rid }}"
+      - uses: actions/upload-artifact@v4
+        with: { name: CodexLimitWidget-${{ matrix.rid }}-app, path: dist/*.app, if-no-files-found: error }
+
+  package-macos-universal2:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: package-macos
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with: { dotnet-version: "10.0.x" }
+      - name: Build Universal 2 app
+        run: |
+          bash installer/build-macos.sh "${GITHUB_REF_NAME#v}" osx-x64
+          mv dist/CodexLimitWidget-osx-x64.app /tmp/CodexLimitWidget-x64.app
+          bash installer/build-macos.sh "${GITHUB_REF_NAME#v}" osx-arm64
+          mv dist/CodexLimitWidget-osx-arm64.app dist/CodexLimitWidget-universal2.app
+          lipo -create /tmp/CodexLimitWidget-x64.app/Contents/MacOS/CodexLimitWidget dist/CodexLimitWidget-universal2.app/Contents/MacOS/CodexLimitWidget -output /tmp/CodexLimitWidget
+          mv /tmp/CodexLimitWidget dist/CodexLimitWidget-universal2.app/Contents/MacOS/CodexLimitWidget
+          codesign --force --deep --sign - dist/CodexLimitWidget-universal2.app
+      - uses: actions/upload-artifact@v4
+        with: { name: CodexLimitWidget-osx-universal2-app, path: dist/CodexLimitWidget-universal2.app, if-no-files-found: error }

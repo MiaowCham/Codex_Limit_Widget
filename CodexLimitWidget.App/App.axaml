@@ -1,1 +1,4 @@
-<Application xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Class="CodexLimitWidget.App.App"><Application.Styles><FluentTheme /></Application.Styles></Application>
+<Application xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Class="CodexLimitWidget.App.App">
+  <Application.Styles><FluentTheme /></Application.Styles>
+  <TrayIcon.Icons><TrayIcons><TrayIcon Icon="/Assets/icon.ico" ToolTipText="Codex Limit Widget"><TrayIcon.Menu><NativeMenu><NativeMenuItem Header="显示窗口" Click="ShowWindow_Click"/><NativeMenuItem Header="刷新" Click="Refresh_Click"/><NativeMenuItemSeparator/><NativeMenuItem Header="退出" Click="Exit_Click"/></NativeMenu></TrayIcon.Menu></TrayIcon></TrayIcons></TrayIcon.Icons>
+</Application>

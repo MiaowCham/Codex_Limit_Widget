@@ -51,6 +51,9 @@ public sealed class CodexAppServerRateLimitProvider : IRateLimitProvider, IAsync
                 catch (Exception retryError)
                 {
                     _logger.Error("Rate-limit recovery attempt", retryError);
+                    // Do not leave a process that timed out twice available for the
+                    // ViewModel's delayed startup retry. A new call must start clean.
+                    await StopAsync().ConfigureAwait(false);
                     throw;
                 }
             }
