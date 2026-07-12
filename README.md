@@ -1,21 +1,32 @@
+<div align="center">
+<img src="icon.png" width="20%" alt="icon" style="margin-bottom: -20px;"/>
+
 # Codex Limit Widget
+[![MIT](https://img.shields.io/badge/License-Apache%202.0-orange.svg)](https://github.com/MiaowCham/Codex_Limit_Widget/blob/main/LICENSE)
+[![Static Badge](https://img.shields.io/badge/Languages-C%23-blue.svg)](https://github.com/search?q=repo%3AMiaowCham%2FCodex_Limit_Widget++language%3AC%23&type=code)
+[![Github Release](https://img.shields.io/github/v/release/MiaowCham/Codex_Limit_Widget)](https://github.com/MiaowCham/Codex_Limit_Widget/releases)
+[![GitHub Actions](https://img.shields.io/github/actions/workflow/status/MiaowCham/Codex_Limit_Widget/.github/workflows/build.yml)](https://github.com/MiaowCham/Codex_Limit_Widget/actions/workflows/build.yml)
+[![GitHub last commit](https://img.shields.io/github/last-commit/MiaowCham/Codex_Limit_Widget)](https://github.com/MiaowCham/Codex_Limit_Widget/commits/main)
 
-一个更轻的 Codex 限额查看工具，直接走官方 `codex app-server` 协议读取数据，当前实现改成了 `.NET + WinForms`，目标是比 `Python + tkinter` 更适合常驻挂桌面。
+一个轻量的 Codex 限额查看小组件
 
-支持：
-- CLI 单次查看
-- CLI 持续刷新
-- Windows 桌面悬浮窗
+</div>
 
-## 为什么改成 .NET
+>[!note]
+>本项目使用AI生成。  
+>This project uses AI generation.
 
-- 比 Python 后台常驻更规整，适合做常驻小组件
-- 使用系统原生 WinForms，视觉和交互比 `tkinter` 更稳定
-- 继续直连 `account/rateLimits/read`，不解析 TUI 文本
+## 依赖
+
+安装包需要目标电脑具有 .NET 10 Desktop Runtime。
 
 ## 使用
 
-### 终端看一次
+### 使用构建版
+
+前往 Release 页或 CI 构建中获取安装包，安装后使用。
+
+### 终端查看
 
 ```powershell
  dotnet run -- status
@@ -48,17 +59,11 @@
 .\installer\build.ps1 -Choice 4
 ```
 
-安装包输出到 `dist`，发布文件输出到 `publish`。安装包需要目标电脑具有 .NET 10 Desktop Runtime。
+安装包输出到 `dist`，发布文件输出到 `publish`。
 
-## 当前界面说明
+## GUI 说明
 
 - 左键拖动窗口
 - 双击窗口立即刷新
 - 托盘双击恢复窗口
 - 托盘右键可刷新或退出
-
-## 备注
-
-- 当前主信息来自官方 app-server 的 `account/rateLimits/read`
-- “精确多久会耗尽”并不是协议直接返回的字段，所以现在显示的是使用率和重置倒计时
-- 如果后续要再降占用，可以继续做 `publish` 单文件发布，对日常使用会更舒服
