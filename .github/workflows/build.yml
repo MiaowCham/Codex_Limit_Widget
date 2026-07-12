@@ -7,6 +7,12 @@ on:
   pull_request:
     branches: [main, dev]
   workflow_dispatch:
+    inputs:
+      version:
+        description: "打包版本号（x.y.z；可选 v 前缀）"
+        required: true
+        default: "0.1.0"
+        type: string
 
 jobs:
   verify:
@@ -25,9 +31,11 @@ jobs:
       - run: dotnet test CodexLimitWidget.slnx -c Release --no-build
 
   package-windows:
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
     needs: verify
     runs-on: windows-latest
+    env:
+      PACKAGE_VERSION: ${{ github.event_name == 'workflow_dispatch' && inputs.version || github.ref_name }}
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-dotnet@v5
@@ -38,7 +46,7 @@ jobs:
       - name: Build self-contained installer
         shell: pwsh
         run: |
-          $version = $env:GITHUB_REF_NAME.TrimStart('v')
+          $version = $env:PACKAGE_VERSION.TrimStart('v')
           ./installer/build-windows.ps1 -Version $version
       - uses: actions/upload-artifact@v4
         with:
@@ -47,16 +55,18 @@ jobs:
           if-no-files-found: error
 
   package-linux:
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
     needs: verify
     runs-on: ubuntu-latest
+    env:
+      PACKAGE_VERSION: ${{ github.event_name == 'workflow_dispatch' && inputs.version || github.ref_name }}
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: "10.0.x"
       - name: Build binary and Debian package
-        run: printf '1\n1\n3\n%s\n' "${GITHUB_REF_NAME#v}" | bash installer/build-linux.sh
+        run: printf '1\n1\n3\n%s\n' "${PACKAGE_VERSION#v}" | bash installer/build-linux.sh
       - uses: actions/upload-artifact@v4
         with:
           name: CodexLimitWidget-linux-x64
@@ -66,9 +76,11 @@ jobs:
           if-no-files-found: error
 
   package-macos:
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
     needs: verify
     runs-on: macos-latest
+    env:
+      PACKAGE_VERSION: ${{ github.event_name == 'workflow_dispatch' && inputs.version || github.ref_name }}
     strategy:
       fail-fast: false
       matrix:
@@ -83,7 +95,7 @@ jobs:
         with:
           dotnet-version: "10.0.x"
       - name: Build ad-hoc signed app
-        run: printf '1\n%s\n2\n%s\n' "${{ matrix.architecture_choice }}" "${GITHUB_REF_NAME#v}" | bash installer/build-macos.sh
+        run: printf '1\n%s\n2\n%s\n' "${{ matrix.architecture_choice }}" "${PACKAGE_VERSION#v}" | bash installer/build-macos.sh
       - uses: actions/upload-artifact@v4
         with:
           name: "CodexLimitWidget-${{ matrix.rid }}-app"
@@ -91,16 +103,18 @@ jobs:
           if-no-files-found: error
 
   package-macos-both-architectures:
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
     needs: verify
     runs-on: macos-latest
+    env:
+      PACKAGE_VERSION: ${{ github.event_name == 'workflow_dispatch' && inputs.version || github.ref_name }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "10.0.x"
       - name: Build separately signed Apple Silicon and Intel apps
-        run: printf '1\n3\n2\n%s\n' "${GITHUB_REF_NAME#v}" | bash installer/build-macos.sh
+        run: printf '1\n3\n2\n%s\n' "${PACKAGE_VERSION#v}" | bash installer/build-macos.sh
       - uses: actions/upload-artifact@v4
         with:
           name: CodexLimitWidget-osx-both-architectures-app
