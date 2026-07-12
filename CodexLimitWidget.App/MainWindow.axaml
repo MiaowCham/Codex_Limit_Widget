@@ -28,7 +28,10 @@
       </ProgressBar>
       <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto">
         <TextBlock Grid.Column="0" Text="{Binding Summary}" Foreground="#FEF7FF" FontSize="10.5" FontWeight="Bold" VerticalAlignment="Center"/>
-        <TextBlock Grid.Column="2" Text="{Binding Countdown}" Foreground="#FEF7FF" FontSize="10.5" FontWeight="Bold" TextAlignment="Right" VerticalAlignment="Center"/>
+        <TextBlock Grid.Column="2" Text="{Binding Countdown}" IsVisible="{Binding ShowWeeklyLimit}" Foreground="#FEF7FF" FontSize="10.5" FontWeight="Bold" TextAlignment="Right" VerticalAlignment="Center"/>
+        <Button Grid.Column="2" Classes="limit-link" IsVisible="{Binding ShowFiveHourLimitNotice}" Click="OpenTiboProfile_Click" ToolTip.Tip="{x:Static resources:Strings.OpenTiboXProfile}" WindowDecorationProperties.ElementRole="None">
+          <TextBlock Text="{Binding Countdown}" FontSize="10.5" FontWeight="Bold" TextDecorations="Underline" TextAlignment="Right"/>
+        </Button>
       </Grid>
       <Grid Grid.Row="3" ColumnDefinitions="Auto,*,Auto">
         <TextBlock Grid.Column="0" Text="{Binding Details}" Foreground="#94A3B8" FontSize="8.5" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
@@ -39,5 +42,6 @@
   <Window.Styles>
     <Style Selector="Button.chrome"><Setter Property="Background" Value="#141C2C"/><Setter Property="Foreground" Value="#E2E8F0"/><Setter Property="BorderThickness" Value="0"/><Setter Property="Padding" Value="0"/><Setter Property="Focusable" Value="False"/><Setter Property="HorizontalContentAlignment" Value="Center"/><Setter Property="VerticalContentAlignment" Value="Center"/></Style>
     <Style Selector="Button.close"><Setter Property="Foreground" Value="#F87171"/></Style>
+    <Style Selector="Button.limit-link"><Setter Property="Background" Value="Transparent"/><Setter Property="Foreground" Value="#7DD3FC"/><Setter Property="BorderThickness" Value="0"/><Setter Property="Padding" Value="0"/><Setter Property="Focusable" Value="False"/><Setter Property="Cursor" Value="Hand"/><Setter Property="HorizontalContentAlignment" Value="Right"/><Setter Property="VerticalContentAlignment" Value="Center"/></Style>
   </Window.Styles>
 </Window>

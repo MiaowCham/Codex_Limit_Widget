@@ -21,6 +21,8 @@ public sealed class LocalizationTests
             Assert.Equal("75% Left", Strings.Format("RemainingPercent", 75));
             Assert.Equal("Reset in 12:34", Strings.Format("ResetAt", "12:34"));
             Assert.Equal("Weekly limit 50%, 07/13 12:34", Strings.Format("WeeklyLimit", 50, "07/13 12:34"));
+            Assert.Equal("No 5-hour limit found", Strings.Get("FiveHourLimitNotFound"));
+            Assert.Equal("View Tibo's profile on X", Strings.OpenTiboXProfile);
             Assert.Equal("Updated at 12:34:56", Strings.Format("UpdatedAt", "12:34:56"));
             Assert.Equal("version 1.2.3", Strings.Format("TrayVersion", "1.2.3"));
         }
@@ -44,6 +46,8 @@ public sealed class LocalizationTests
             Assert.Equal("剩餘 75%", Strings.Format("RemainingPercent", 75));
             Assert.Equal("將於 12:34 重設", Strings.Format("ResetAt", "12:34"));
             Assert.Equal("每週限額 50% · 7 月 13 日 12:34", Strings.Format("WeeklyLimit", 50, "7 月 13 日 12:34"));
+            Assert.Equal("未發現 5 小時限額", Strings.Get("FiveHourLimitNotFound"));
+            Assert.Equal("前往查看 Tibo 的 X 帳號", Strings.OpenTiboXProfile);
         }
         finally
         {
@@ -64,6 +68,8 @@ public sealed class LocalizationTests
 
             Assert.Equal("剩余 75%", Strings.Format("RemainingPercent", 75));
             Assert.Equal("将于 12:34 重置", Strings.Format("ResetAt", "12:34"));
+            Assert.Equal("未发现 5 小时限额", Strings.Get("FiveHourLimitNotFound"));
+            Assert.Equal("前往查看 Tibo 的 X 账号", Strings.OpenTiboXProfile);
         }
         finally
         {
@@ -85,6 +91,8 @@ public sealed class LocalizationTests
             Assert.Equal("残り 75%", Strings.Format("RemainingPercent", 75));
             Assert.Equal("12:34 にリセット", Strings.Format("ResetAt", "12:34"));
             Assert.Equal("週 50% · 7/13 12:34", Strings.Format("WeeklyLimit", 50, "7/13 12:34"));
+            Assert.Equal("5 時間制限が見つかりません", Strings.Get("FiveHourLimitNotFound"));
+            Assert.Equal("Tibo の X プロフィールを見る", Strings.OpenTiboXProfile);
         }
         finally
         {

@@ -25,6 +25,7 @@ public static class Strings
     public static string TooltipRefresh => Get(nameof(TooltipRefresh));
     public static string TooltipClose => Get(nameof(TooltipClose));
     public static string TooltipUsageColors => Get(nameof(TooltipUsageColors));
+    public static string OpenTiboXProfile => Get(nameof(OpenTiboXProfile));
     public static string TrayHideWindow => Get(nameof(TrayHideWindow));
     public static string TrayRefresh => Get(nameof(TrayRefresh));
     public static string TrayExit => Get(nameof(TrayExit));

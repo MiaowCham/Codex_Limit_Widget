@@ -46,6 +46,8 @@ Usage:
   <data name="Plan" xml:space="preserve"><value>PLAN {0}</value></data>
   <data name="ResetAt" xml:space="preserve"><value>Reset in {0}</value></data>
   <data name="WeeklyLimit" xml:space="preserve"><value>Weekly limit {0}%, {1}</value></data>
+  <data name="FiveHourLimitNotFound" xml:space="preserve"><value>No 5-hour limit found</value></data>
+  <data name="OpenTiboXProfile" xml:space="preserve"><value>View Tibo's profile on X</value></data>
   <data name="Details" xml:space="preserve"><value>Credits {0} | Reset credits {1}</value></data>
   <data name="UpdatedAt" xml:space="preserve"><value>Updated at {0}</value></data>
   <data name="ReadFailure" xml:space="preserve"><value>Read failed</value></data>

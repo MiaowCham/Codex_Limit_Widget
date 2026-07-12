@@ -46,6 +46,8 @@
   <data name="Plan" xml:space="preserve"><value>PLAN {0}</value></data>
   <data name="ResetAt" xml:space="preserve"><value>将于 {0} 重置</value></data>
   <data name="WeeklyLimit" xml:space="preserve"><value>周限额 {0}% · {1}</value></data>
+  <data name="FiveHourLimitNotFound" xml:space="preserve"><value>未发现 5 小时限额</value></data>
+  <data name="OpenTiboXProfile" xml:space="preserve"><value>前往查看 Tibo 的 X 账号</value></data>
   <data name="Details" xml:space="preserve"><value>Credits {0} | 重置额度 {1}</value></data>
   <data name="UpdatedAt" xml:space="preserve"><value>{0} 更新</value></data>
   <data name="ReadFailure" xml:space="preserve"><value>读取失败</value></data>

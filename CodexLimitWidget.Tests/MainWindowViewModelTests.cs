@@ -13,6 +13,18 @@ public sealed class MainWindowViewModelTests
         var vm = new MainWindowViewModel(new FakeProvider(CreateSnapshot()));
         await vm.RefreshAsync(CancellationToken.None);
         Assert.Equal(Strings.Format("RemainingPercent", 75), vm.Headline); Assert.Equal(Strings.Format("Plan", "PRO"), vm.Plan); Assert.Equal("025", vm.Badge); Assert.Equal(25, vm.Usage); Assert.StartsWith(Strings.Get("ResetAt").Split("{0}")[0], vm.Summary); Assert.Empty(vm.ErrorMessage);
+        Assert.True(vm.ShowWeeklyLimit); Assert.False(vm.ShowFiveHourLimitNotice); Assert.StartsWith(Strings.Get("WeeklyLimit").Split("{0}")[0], vm.Countdown);
+    }
+    [Fact]
+    public async Task MissingFiveHourWindowShowsLinkedNoticeInsteadOfUnknownWeeklyLimit()
+    {
+        var snapshot = new RateLimitSnapshot("codex", null, "pro", null, null, new(50, 10080, null), RateLimitWindow.Empty, null);
+        var vm = new MainWindowViewModel(new FakeProvider(snapshot));
+        await vm.RefreshAsync(CancellationToken.None);
+        Assert.False(vm.ShowWeeklyLimit);
+        Assert.True(vm.ShowFiveHourLimitNotice);
+        Assert.Equal(Strings.Get("FiveHourLimitNotFound"), vm.Countdown);
+        Assert.DoesNotContain(Strings.Unknown, vm.Countdown);
     }
     [Fact]
     public async Task FailedRefreshKeepsLastSuccessfulData()
@@ -21,6 +33,19 @@ public sealed class MainWindowViewModelTests
         await vm.RefreshAsync(CancellationToken.None); provider.Exception = new InvalidOperationException("offline");
         await vm.RefreshAsync(CancellationToken.None);
         Assert.Equal(Strings.Get("ReadFailure"), vm.Headline); Assert.Equal(Strings.Format("Plan", "PRO"), vm.Plan); Assert.Equal(25, vm.Usage); Assert.Equal("offline", vm.ErrorMessage);
+    }
+    [Fact]
+    public async Task CodexCliErrorDoesNotReuseFiveHourNoticeLink()
+    {
+        var snapshot = new RateLimitSnapshot("codex", null, "pro", null, null, new(50, 10080, null), RateLimitWindow.Empty, null);
+        var provider = new FakeProvider(snapshot);
+        var vm = new MainWindowViewModel(provider);
+        await vm.RefreshAsync(CancellationToken.None);
+        provider.Exception = new InvalidOperationException("Codex CLI is unavailable");
+        await vm.RefreshAsync(CancellationToken.None);
+        Assert.True(vm.ShowWeeklyLimit);
+        Assert.False(vm.ShowFiveHourLimitNotice);
+        Assert.Equal(Strings.Get("InstallCodexCli"), vm.Countdown);
     }
     [Fact]
     public async Task FailedConfirmationReadAppliesFirstSuccessfulSnapshot()

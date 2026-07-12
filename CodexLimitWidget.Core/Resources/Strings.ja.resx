@@ -46,6 +46,8 @@
   <data name="Plan" xml:space="preserve"><value>PLAN {0}</value></data>
   <data name="ResetAt" xml:space="preserve"><value>{0} にリセット</value></data>
   <data name="WeeklyLimit" xml:space="preserve"><value>週 {0}% · {1}</value></data>
+  <data name="FiveHourLimitNotFound" xml:space="preserve"><value>5 時間制限が見つかりません</value></data>
+  <data name="OpenTiboXProfile" xml:space="preserve"><value>Tibo の X プロフィールを見る</value></data>
   <data name="Details" xml:space="preserve"><value>Credits {0} | リセット枠 {1}</value></data>
   <data name="UpdatedAt" xml:space="preserve"><value>{0} 更新</value></data>
   <data name="ReadFailure" xml:space="preserve"><value>読込失敗</value></data>

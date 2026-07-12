@@ -14,6 +14,16 @@ public sealed class RateLimitSnapshotTests
         Assert.Equal("pro", snapshot.PlanType);
         Assert.Equal(75, snapshot.RemainingPercent);
         Assert.Equal(60, snapshot.Secondary.UsedPercent);
+        Assert.True(snapshot.HasFiveHourLimit);
+    }
+
+    [Fact]
+    public void DetectsTemporaryResponseWithoutFiveHourWindow()
+    {
+        using var json = JsonDocument.Parse("""{ "rateLimitsByLimitId": { "codex": { "limitId": "codex", "planType": "pro", "primary": { "usedPercent": 60, "windowDurationMins": 10080 } } } }""");
+        var snapshot = RateLimitSnapshot.FromJson(json.RootElement);
+        Assert.Equal(60, snapshot.Primary.UsedPercent);
+        Assert.False(snapshot.HasFiveHourLimit);
     }
 
     [Fact]

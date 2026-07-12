@@ -11,6 +11,7 @@ public sealed class MainWindowViewModel : ViewModelBase
     private int _refreshing;
     private int? _lastSuccessfulUsedPercent;
     private string _headline = Strings.Loading, _plan = "", _summary = "", _countdown = "", _details = "", _updated = "", _errorMessage = "", _badge = "---";
+    private bool _showWeeklyLimit = true, _showFiveHourLimitNotice;
     private double _usage;
     private IBrush _badgeBrush = Brushes.LightGreen;
     private IBrush _usageBrush = Brushes.LightGreen;
@@ -24,6 +25,8 @@ public sealed class MainWindowViewModel : ViewModelBase
     public string ErrorMessage { get => _errorMessage; private set => SetProperty(ref _errorMessage, value); }
     public double Usage { get => _usage; private set => SetProperty(ref _usage, value); }
     public string Badge { get => _badge; private set => SetProperty(ref _badge, value); }
+    public bool ShowWeeklyLimit { get => _showWeeklyLimit; private set => SetProperty(ref _showWeeklyLimit, value); }
+    public bool ShowFiveHourLimitNotice { get => _showFiveHourLimitNotice; private set => SetProperty(ref _showFiveHourLimitNotice, value); }
     public IBrush BadgeBrush { get => _badgeBrush; private set => SetProperty(ref _badgeBrush, value); }
     public IBrush UsageBrush { get => _usageBrush; private set => SetProperty(ref _usageBrush, value); }
     public bool IsRefreshing => Volatile.Read(ref _refreshing) != 0;
@@ -75,7 +78,11 @@ public sealed class MainWindowViewModel : ViewModelBase
         Badge = snapshot.Primary.UsedPercent?.ToString("D3") ?? "---";
         BadgeBrush = UsageBrush = (snapshot.Primary.UsedPercent ?? 0) switch { >= 85 => Brushes.LightCoral, >= 60 => Brushes.Gold, _ => Brushes.LightGreen };
         Summary = Strings.Format("ResetAt", FormatResetMoment(snapshot.Primary.ResetsAt, false));
-        Countdown = Strings.Format("WeeklyLimit", snapshot.Secondary.UsedPercent?.ToString() ?? "--", FormatResetMoment(snapshot.Secondary.ResetsAt, true));
+        ShowWeeklyLimit = snapshot.HasFiveHourLimit;
+        ShowFiveHourLimitNotice = !snapshot.HasFiveHourLimit;
+        Countdown = snapshot.HasFiveHourLimit
+            ? Strings.Format("WeeklyLimit", snapshot.Secondary.UsedPercent?.ToString() ?? "--", FormatResetMoment(snapshot.Secondary.ResetsAt, true))
+            : Strings.Get("FiveHourLimitNotFound");
         Details = Strings.Format("Details", snapshot.Credits?.Unlimited == true ? Strings.Get("Unlimited") : snapshot.Credits?.Balance ?? "0", snapshot.RateLimitResetCredits?.ToString() ?? "0");
         Updated = Strings.Format("UpdatedAt", DateTime.Now.ToString("T")); ErrorMessage = "";
         _lastSuccessfulUsedPercent = snapshot.Primary.UsedPercent;
@@ -86,6 +93,8 @@ public sealed class MainWindowViewModel : ViewModelBase
         Headline = Strings.Get("ReadFailure"); Badge = "!"; BadgeBrush = UsageBrush = Brushes.LightCoral; ErrorMessage = exception.Message; Updated = Strings.Get("RefreshFailed");
         if (exception.Message.Contains("Codex CLI", StringComparison.OrdinalIgnoreCase))
         {
+            ShowWeeklyLimit = true;
+            ShowFiveHourLimitNotice = false;
             Summary = Strings.Get("CodexCliMissing");
             Countdown = Strings.Get("InstallCodexCli");
             Details = Strings.Get("LinuxIdeCliNote");

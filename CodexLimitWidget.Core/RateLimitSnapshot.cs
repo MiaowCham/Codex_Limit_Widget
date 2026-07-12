@@ -22,7 +22,10 @@ public sealed record CreditsSnapshot(bool HasCredits, bool Unlimited, string? Ba
 
 public sealed record RateLimitSnapshot(string LimitId, string? LimitName, string? PlanType, string? RateLimitReachedType, CreditsSnapshot? Credits, RateLimitWindow Primary, RateLimitWindow Secondary, int? RateLimitResetCredits)
 {
+    private const int FiveHourWindowDurationMins = 5 * 60;
+
     public int? RemainingPercent => Primary.UsedPercent is null ? null : Math.Clamp(100 - Primary.UsedPercent.Value, 0, 100);
+    public bool HasFiveHourLimit => Primary.WindowDurationMins == FiveHourWindowDurationMins || Secondary.WindowDurationMins == FiveHourWindowDurationMins;
 
     public static RateLimitSnapshot FromJson(JsonElement result)
     {

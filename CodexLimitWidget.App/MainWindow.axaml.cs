@@ -5,12 +5,14 @@ using Avalonia;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using Avalonia.Media;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using CodexLimitWidget.Core;
 using CodexLimitWidget.App.ViewModels;
 using CodexLimitWidget.Core.Resources;
 
 namespace CodexLimitWidget.App;
+
 public partial class MainWindow : Window
 {
     private readonly CodexAppServerRateLimitProvider _provider;
@@ -20,6 +22,7 @@ public partial class MainWindow : Window
     private readonly CancellationTokenSource _closing = new();
     private const uint WmNcLeftButtonDown = 0x00A1;
     private const nuint HtCaption = 2;
+    private const string TiboProfileUrl = "https://x.com/thsottiaux";
     public MainWindow() { InitializeComponent(); _logger = Program.Logger; _logger.Info("Main window constructed."); _provider = new CodexAppServerRateLimitProvider(Program.ApplicationVersion, logger: _logger); _viewModel = new MainWindowViewModel(_provider, _logger); DataContext = _viewModel; _timer = new DispatcherTimer(TimeSpan.FromSeconds(Program.RefreshIntervalSeconds), DispatcherPriority.Background, (_, _) => QueueRefresh("timer")); Opened += (_, _) => { _logger.Info("Main window opened."); PositionAtTopRight(); _timer.Start(); QueueRefresh("startup"); }; SizeChanged += (_, _) => PositionAtTopRight(); Closed += async (_, _) => { _logger.Info("Main window closing."); _timer.Stop(); _closing.Cancel(); await _provider.DisposeAsync(); _closing.Dispose(); }; }
     private void QueueRefresh(string source)
     {
@@ -59,6 +62,11 @@ public partial class MainWindow : Window
         ToggleTopmostFromTray();
     }
     private void Close_Click(object? sender, RoutedEventArgs e) => Close();
+    private void OpenTiboProfile_Click(object? sender, RoutedEventArgs e)
+    {
+        try { Process.Start(new ProcessStartInfo(TiboProfileUrl) { UseShellExecute = true }); }
+        catch (Exception exception) { _logger.Error("Opening Tibo X profile", exception); }
+    }
     private void Surface_PointerPressed(object? sender, PointerPressedEventArgs e)
     {
         var isButton = IsButtonSource(e.Source);
