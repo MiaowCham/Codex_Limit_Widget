@@ -16,12 +16,16 @@ build_one() {
   local framework="$1" rid="$2" version="$3" stage="$root/publish/$rid-$framework/app"
   rm -rf "$stage"
   dotnet publish "$project" -c Release -f "$framework" -r "$rid" --self-contained true \
-    -p:PublishSingleFile=true -p:Version="$version" -o "$stage"
+    -p:PublishSingleFile=true -p:Version="$version" -o "$stage" >&2
   printf '%s' "$stage"
 }
 
 create_app() {
-  local source="$1" name="$2" version="$3" minimum_system="$4" app="$root/dist/$name.app"
+  local source="$1"
+  local name="$2"
+  local version="$3"
+  local minimum_system="$4"
+  local app="$root/dist/$name.app"
   rm -rf "$app"
   install -d "$app/Contents/MacOS" "$app/Contents/Resources"
   install -m 0755 "$source/CodexLimitWidget.App" "$app/Contents/MacOS/CodexLimitWidget"

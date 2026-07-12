@@ -1,4 +1,4 @@
-param([string]$Version = "0.1.0")
+param([string]$Version = "0.2.0")
 
 $ErrorActionPreference = 'Stop'
 $root = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
@@ -12,5 +12,12 @@ if ($LASTEXITCODE -ne 0) { throw "dotnet publish failed: $LASTEXITCODE" }
 $iscc = (Get-Command iscc -ErrorAction SilentlyContinue).Source
 if (-not $iscc) { $iscc = Join-Path ${env:ProgramFiles(x86)} 'Inno Setup 6\ISCC.exe' }
 if (-not (Test-Path $iscc)) { throw 'Inno Setup 6 is required. Install it or add iscc.exe to PATH.' }
-& $iscc "/DMyAppVersion=$Version" (Join-Path $PSScriptRoot 'CodexLimitWidget.iss')
+$languageFile = Join-Path (Split-Path $iscc) 'Languages\ChineseSimplified.isl'
+$iss = if (Test-Path $languageFile) {
+    Join-Path $PSScriptRoot 'CodexLimitWidget.iss'
+} else {
+    Write-Host 'Chinese Inno Setup language file is unavailable; using the English CI installer script.' -ForegroundColor Yellow
+    Join-Path $PSScriptRoot 'CodexLimitWidget.CI.iss'
+}
+& $iscc "/DMyAppVersion=$Version" $iss
 if ($LASTEXITCODE -ne 0) { throw "ISCC failed: $LASTEXITCODE" }
