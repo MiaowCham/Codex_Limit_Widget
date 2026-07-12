@@ -1,14 +1,14 @@
 <div align="center">
 <img src="icon.png" width="20%" alt="icon" style="margin-bottom: -20px;"/>
 
-# Codex Limit Widget Dev
+# Codex Limit Widget macOS12 Dev
 [![MIT](https://img.shields.io/badge/License-Apache%202.0-orange.svg)](https://github.com/MiaowCham/Codex_Limit_Widget/blob/main/LICENSE)
 [![Static Badge](https://img.shields.io/badge/Languages-C%23-blue.svg)](https://github.com/search?q=repo%3AMiaowCham%2FCodex_Limit_Widget++language%3AC%23&type=code)
 [![Github Release](https://img.shields.io/github/v/release/MiaowCham/Codex_Limit_Widget)](https://github.com/MiaowCham/Codex_Limit_Widget/releases)
 [![GitHub Actions](https://img.shields.io/github/actions/workflow/status/MiaowCham/Codex_Limit_Widget/.github/workflows/build.yml)](https://github.com/MiaowCham/Codex_Limit_Widget/actions/workflows/build.yml)
 [![GitHub last commit](https://img.shields.io/github/last-commit/MiaowCham/Codex_Limit_Widget)](https://github.com/MiaowCham/Codex_Limit_Widget/commits/main)
 
-一个轻量的 Codex 限额查看小组件，**跨平台测试版**
+一个轻量的 Codex 限额查看小组件，**macOS12 测试版**
 
 </div>
 
@@ -18,10 +18,10 @@
 
 ## TODO
 
-- [ ] 确认各系统构建版本运行情况
+- [x] 确认各系统构建版本运行情况
   - [x] Windows
   - [x] Linux (WSL2)
-  - [ ] macOS
+  - [x] macOS
 - [ ] 构建 Linux、macOS 软件包
 - [ ] 适配 Inno Setup 打包
 - [ ] 适配各系统托盘图标
@@ -29,34 +29,43 @@
 
 ## 依赖与当前限制
 
-跨平台版本使用 .NET 10 + Avalonia 12，并要求 `codex` CLI 可通过 `PATH` 找到。  
+跨平台版本使用 .NET 8 + Avalonia 12，并要求 `codex` CLI 可通过 `PATH` 找到。  
 IDE 插件不会自动提供 `codex` CLI；Linux/macOS 用户需要单独安装 CLI。
 
 当前迁移状态：Windows、Linux、macOS 均可生成 RID 产物，但 Linux/macOS 尚未组装原生安装包或 `.app`，需要手动运行二进制文件。  
 现有 Inno Setup 脚本只适用于旧版 Windows/WinForms 项目，尚未适配 Avalonia 跨平台版本。
 
-### 安装 .NET 10
+### 安装 .NET 8
 
-官方安装入口：[Install .NET](https://dotnet.microsoft.com/download/dotnet/10.0)。
+官方安装入口：[Install .NET](https://dotnet.microsoft.com/download/dotnet/8.0)。
 
 Windows（PowerShell）：
 
 ```powershell
-winget install Microsoft.DotNet.SDK.10
+winget install Microsoft.DotNet.SDK.8
 ```
 
 Ubuntu/Debian 等 Linux，也可以使用官方脚本进行用户级安装：
 
 ```bash
 curl -fsSL https://dot.net/v1/dotnet-install.sh -o dotnet-install.sh
-bash dotnet-install.sh --channel 10.0
+bash dotnet-install.sh --channel 8.0
 export PATH="$HOME/.dotnet:$HOME/.dotnet/tools:$PATH"
 ```
 
 macOS：
 
 ```bash
-brew install --cask dotnet-sdk
+curl -fsSL https://dot.net/v1/dotnet-install.sh -o dotnet-install.sh
+chmod +x dotnet-install.sh
+
+./dotnet-install.sh \
+  --channel 8.0 \
+  --install-dir "$HOME/.dotnet"
+
+echo 'export DOTNET_ROOT="$HOME/.dotnet"' >> ~/.zshrc
+echo 'export PATH="$DOTNET_ROOT:$PATH"' >> ~/.zshrc
+source ~/.zshrc
 ```
 
 也可以从官方页面下载对应的 macOS Arm64 或 x64 SDK。当前项目的 .NET 10 官方支持范围最低为 macOS 14；macOS 12 Monterey 不属于本项目的正式支持目标。
@@ -92,7 +101,7 @@ dotnet run --project CodexLimitWidget.App -- --interval 60
 
 ```powershell
 dotnet publish CodexLimitWidget.App/CodexLimitWidget.App.csproj `
-  -c Release -r win-x64 --self-contained true `
+  -c Release -f net8.0 -r win-x64 --self-contained true `
   -p:PublishSingleFile=true -o publish/windows-x64
 .\publish\windows-x64\CodexLimitWidget.App.exe --interval 60
 ```
@@ -103,7 +112,7 @@ dotnet publish CodexLimitWidget.App/CodexLimitWidget.App.csproj `
 
 ```bash
 dotnet publish CodexLimitWidget.App/CodexLimitWidget.App.csproj \
-  -c Release -r linux-x64 --self-contained true \
+  -c Release -f net8.0 -r linux-x64 --self-contained true \
   -p:PublishSingleFile=true -o publish/linux-x64
 chmod +x publish/linux-x64/CodexLimitWidget.App
 ./publish/linux-x64/CodexLimitWidget.App --interval 60
@@ -122,16 +131,19 @@ $XDG_STATE_HOME/CodexLimitWidget/Logs/widget.log
 ```bash
 # Apple Silicon
 dotnet publish CodexLimitWidget.App/CodexLimitWidget.App.csproj \
-  -c Release -r osx-arm64 --self-contained true \
+  -c Release -f net8.0 -r osx-arm64 --self-contained true \
   -p:PublishSingleFile=true -o publish/osx-arm64
-
-# Intel
-dotnet publish CodexLimitWidget.App/CodexLimitWidget.App.csproj \
-  -c Release -r osx-x64 --self-contained true \
-  -p:PublishSingleFile=true -o publish/osx-x64
 
 chmod +x publish/osx-arm64/CodexLimitWidget.App
 ./publish/osx-arm64/CodexLimitWidget.App --interval 60
+
+# Intel
+dotnet publish CodexLimitWidget.App/CodexLimitWidget.App.csproj \
+  -c Release -f net8.0 -r osx-x64 --self-contained true \
+  -p:PublishSingleFile=true -o publish/osx-x64
+
+chmod +x publish/osx-arm64/CodexLimitWidget.App
+./publish/osx-x64/CodexLimitWidget.App --interval 60
 ```
 
 macOS 当前没有 `.app`、DMG、签名或 notarization 产物，需要手动运行发布目录中的二进制文件。日志位于：`~/Library/Logs/CodexLimitWidget/widget.log`。

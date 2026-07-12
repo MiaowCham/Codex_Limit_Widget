@@ -28,7 +28,20 @@ public sealed class DefaultAppServerProcessFactory : IAppServerProcessFactory
 
     private static (string FileName, string Arguments) ResolveCodexCommand()
     {
-        if (!OperatingSystem.IsWindows()) return ("codex", "app-server --listen stdio://");
+        if (!OperatingSystem.IsWindows())
+        {
+            var pathEntries = Environment.GetEnvironmentVariable("PATH")?.Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries) ?? [];
+            var candidates = pathEntries.Select(directory => Path.Combine(directory.Trim(), "codex"))
+                .Concat(new[]
+                {
+                    Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".local", "bin", "codex"),
+                    "/usr/local/bin/codex",
+                    "/opt/homebrew/bin/codex",
+                    "/usr/bin/codex",
+                });
+            var found = candidates.FirstOrDefault(File.Exists);
+            return (found ?? "codex", "app-server --listen stdio://");
+        }
         var path = Environment.GetEnvironmentVariable("PATH")?.Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries) ?? [];
         // npm 的 Windows shim 是 .cmd；直接以 node.exe 运行其入口，避免 cmd.exe
         // 在受限环境中被 UAC/企业策略拒绝（错误 740）。
