@@ -19,7 +19,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
-        with: { dotnet-version: "10.0.x" }
+        with:
+          dotnet-version: "10.0.x"
       - run: dotnet build CodexLimitWidget.slnx -c Release
       - run: dotnet test CodexLimitWidget.slnx -c Release --no-build
 
@@ -30,14 +31,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
-        with: { dotnet-version: "10.0.x" }
+        with:
+          dotnet-version: "10.0.x"
       - name: Install Inno Setup
         run: choco install innosetup -y --no-progress
       - name: Build self-contained installer
         shell: pwsh
-        run: ./installer/build-windows.ps1 -Version "${{ github.ref_name }}"
+        run: |
+          $version = $env:GITHUB_REF_NAME.TrimStart('v')
+          ./installer/build-windows.ps1 -Version $version
       - uses: actions/upload-artifact@v4
-        with: { name: CodexLimitWidget-windows-x64-setup, path: dist/*.exe, if-no-files-found: error }
+        with:
+          name: CodexLimitWidget-windows-x64-setup
+          path: dist/*.exe
+          if-no-files-found: error
 
   package-linux:
     if: startsWith(github.ref, 'refs/tags/v')
@@ -46,11 +53,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
-        with: { dotnet-version: "10.0.x" }
+        with:
+          dotnet-version: "10.0.x"
       - name: Build binary and Debian package
-        run: bash installer/build-linux.sh "${GITHUB_REF_NAME#v}"
+        run: printf '1\n1\n3\n%s\n' "${GITHUB_REF_NAME#v}" | bash installer/build-linux.sh
       - uses: actions/upload-artifact@v4
-        with: { name: CodexLimitWidget-linux-x64, path: "publish/linux-x64/app/CodexLimitWidget.App\ndist/*.deb", if-no-files-found: error }
+        with:
+          name: CodexLimitWidget-linux-x64
+          path: |
+            publish/linux-x64/app/CodexLimitWidget.App
+            dist/*.deb
+          if-no-files-found: error
 
   package-macos:
     if: startsWith(github.ref, 'refs/tags/v')
@@ -59,32 +72,37 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        rid: [osx-x64, osx-arm64]
+        include:
+          - rid: osx-arm64
+            architecture_choice: 1
+          - rid: osx-x64
+            architecture_choice: 2
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
-        with: { dotnet-version: "10.0.x" }
+        with:
+          dotnet-version: "10.0.x"
       - name: Build ad-hoc signed app
-        run: bash installer/build-macos.sh "${GITHUB_REF_NAME#v}" "${{ matrix.rid }}"
+        run: printf '1\n%s\n2\n%s\n' "${{ matrix.architecture_choice }}" "${GITHUB_REF_NAME#v}" | bash installer/build-macos.sh
       - uses: actions/upload-artifact@v4
-        with: { name: CodexLimitWidget-${{ matrix.rid }}-app, path: dist/*.app, if-no-files-found: error }
+        with:
+          name: "CodexLimitWidget-${{ matrix.rid }}-app"
+          path: dist/*.app
+          if-no-files-found: error
 
-  package-macos-universal2:
+  package-macos-both-architectures:
     if: startsWith(github.ref, 'refs/tags/v')
-    needs: package-macos
+    needs: verify
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
-        with: { dotnet-version: "10.0.x" }
-      - name: Build Universal 2 app
-        run: |
-          bash installer/build-macos.sh "${GITHUB_REF_NAME#v}" osx-x64
-          mv dist/CodexLimitWidget-osx-x64.app /tmp/CodexLimitWidget-x64.app
-          bash installer/build-macos.sh "${GITHUB_REF_NAME#v}" osx-arm64
-          mv dist/CodexLimitWidget-osx-arm64.app dist/CodexLimitWidget-universal2.app
-          lipo -create /tmp/CodexLimitWidget-x64.app/Contents/MacOS/CodexLimitWidget dist/CodexLimitWidget-universal2.app/Contents/MacOS/CodexLimitWidget -output /tmp/CodexLimitWidget
-          mv /tmp/CodexLimitWidget dist/CodexLimitWidget-universal2.app/Contents/MacOS/CodexLimitWidget
-          codesign --force --deep --sign - dist/CodexLimitWidget-universal2.app
+        with:
+          dotnet-version: "10.0.x"
+      - name: Build separately signed Apple Silicon and Intel apps
+        run: printf '1\n3\n2\n%s\n' "${GITHUB_REF_NAME#v}" | bash installer/build-macos.sh
       - uses: actions/upload-artifact@v4
-        with: { name: CodexLimitWidget-osx-universal2-app, path: dist/CodexLimitWidget-universal2.app, if-no-files-found: error }
+        with:
+          name: CodexLimitWidget-osx-both-architectures-app
+          path: dist/*.app
+          if-no-files-found: error
