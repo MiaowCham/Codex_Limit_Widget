@@ -1,9 +1,9 @@
 <div align="center">
-<img src="icon.png" width="20%" alt="Codex Limit Widget 图标" style="margin-bottom: -20px;"/>
+<img src="icon.png" width="20%" alt="Codex Limit Widget icon" style="margin-bottom: -20px;"/>
 
 # Codex Limit Widget
 
-[English](README.md) / 简体中文
+English / [简体中文](README-CN.md)
 
 [![Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-orange.svg)](https://github.com/MiaowCham/Codex_Limit_Widget/blob/main/LICENSE)
 [![Static Badge](https://img.shields.io/badge/Languages-C%23-blue.svg)](https://github.com/search?q=repo%3AMiaowCham%2FCodex_Limit_Widget++language%3AC%23&type=code)
@@ -11,72 +11,79 @@
 [![GitHub Actions](https://img.shields.io/github/actions/workflow/status/MiaowCham/Codex_Limit_Widget/.github/workflows/build.yml)](https://github.com/MiaowCham/Codex_Limit_Widget/actions/workflows/build.yml)
 [![GitHub last commit](https://img.shields.io/github/last-commit/MiaowCham/Codex_Limit_Widget)](https://github.com/MiaowCham/Codex_Limit_Widget/commits/main)
 
-一个用于查看 Codex 用量与重置时间的轻量跨平台桌面组件。
+A lightweight cross-platform desktop widget for viewing Codex usage and reset times.
 
 </div>
 
 > [!NOTE]
-> 本项目使用 AI 辅助开发。  
 > This project is developed with AI assistance.
 
-## 功能
+## Features
 
-- 显示主要限额、周限额、重置时间、Credits 和当前套餐
-- 支持定时刷新与手动刷新
-- 支持窗口拖动和置顶切换
-- 支持系统托盘菜单：显示/隐藏窗口、切换置顶、刷新、打开项目主页和退出
-- 提供 `status` 与 `watch` 两种 CLI 查询模式
-- 在 Windows、Linux 和 macOS 上构建并测试
+- Shows primary and weekly limits, reset times, credits, and the current plan
+- Supports scheduled and manual refreshes
+- Supports window dragging and always-on-top toggling
+- Provides a system-tray menu to show or hide the window, toggle always-on-top, refresh, open the project page, and exit
+- Provides `status` and `watch` CLI modes
+- Builds and tests on Windows, Linux, and macOS
 
-## 运行要求
+## Requirements
 
-跨平台桌面端基于 Avalonia 12。正式构建使用 .NET 10；App、CLI、Core 和测试项目在使用较旧 SDK 时也可回退到 `net8.0`。
+The cross-platform desktop app uses Avalonia 12. Production builds use .NET 10; the App, CLI, Core, and test projects fall back to `net8.0` with older SDKs.
 
-程序通过 `codex app-server` 读取限额，因此要求：
+The app reads usage limits through `codex app-server`, so it requires:
 
-- 已安装 Codex CLI
-- `codex` 命令可通过 `PATH` 找到
-- Codex CLI 已完成登录
+- Codex CLI installed
+- The `codex` command available on `PATH`
+- A signed-in Codex CLI session
 
-IDE 插件通常不会自动提供独立的 `codex` CLI，必要时请单独安装。
+IDE extensions do not usually include a standalone Codex CLI. Install it separately when needed.
 
-## 使用
+## Usage
 
-### 安装构建版
+### Install a release build
 
-前往 [Releases](https://github.com/MiaowCham/Codex_Limit_Widget/releases) 或 GitHub Actions 构建产物下载：
+Download an installer or build artifact from [Releases](https://github.com/MiaowCham/Codex_Limit_Widget/releases) or GitHub Actions:
 
-- Windows x64：Inno Setup 安装程序
-- Linux x64：自包含可执行文件和 DEB 安装包
-- macOS：Apple Silicon 与 Intel 的 ad-hoc 签名 `.app`
+- Windows x64: Inno Setup installer
+- Linux x64: self-contained executable and DEB package
+- macOS: ad-hoc-signed `.app` bundles for Apple Silicon and Intel
 
-macOS 产物未进行 Apple Developer ID 签名或公证，首次运行时可能需要在系统设置中手动允许。
+The macOS artifacts are not signed with an Apple Developer ID or notarized. You may need to allow the app manually in system settings on first launch.
 
-### 启动桌面组件
+### Start the desktop widget
 
 ```powershell
 dotnet run --project CodexLimitWidget.App -- --interval 60
 ```
 
-`--interval` 的单位为秒，可设置为 `1` 至 `86400`，默认值为 `60`。
+`--interval` is in seconds, accepts `1` through `86400`, and defaults to `60`.
 
-### 查询一次
-
-```powershell
-dotnet run --project CodexLimitWidget.Cli -- status
-```
-
-### 持续查询
+The display language follows the system by default. Override it for a launch with `--language`, for example:
 
 ```powershell
-dotnet run --project CodexLimitWidget.Cli -- watch --interval 60
+dotnet run --project CodexLimitWidget.App -- --language ja-JP
 ```
 
-按 `Ctrl+C` 停止持续查询。
+Supported translations are English, Simplified Chinese, Traditional Chinese, and Japanese. Unsupported cultures fall back to English.
 
-## 从源码构建
+### Query once
 
-推荐安装 [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)。
+```powershell
+dotnet run --project CodexLimitWidget.Cli -- status --language en-US
+```
+
+### Watch continuously
+
+```powershell
+dotnet run --project CodexLimitWidget.Cli -- watch --interval 60 --language zh-Hant
+```
+
+Press `Ctrl+C` to stop watching.
+
+## Build from source
+
+Install the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0), then run:
 
 ```powershell
 dotnet build CodexLimitWidget.slnx -c Release
@@ -85,7 +92,7 @@ dotnet test CodexLimitWidget.slnx -c Release --no-build
 
 ### Windows x64
 
-生成自包含单文件程序：
+Create a self-contained single-file app:
 
 ```powershell
 dotnet publish CodexLimitWidget.App/CodexLimitWidget.App.csproj `
@@ -93,47 +100,49 @@ dotnet publish CodexLimitWidget.App/CodexLimitWidget.App.csproj `
   -p:PublishSingleFile=true -o publish/win-x64/app
 ```
 
-生成 Inno Setup 安装程序需要安装 Inno Setup 6：
+To create the Inno Setup installer, install Inno Setup 6 and run:
 
 ```powershell
-./installer/build-windows.ps1 -Version 0.2.2
+./installer/build-windows.ps1 -Version 0.2.4
 ```
+
+The script downloads the official Simplified Chinese, Traditional Chinese, and Japanese Inno Setup translations. The installer also includes English.
 
 ### Linux
 
-交互式脚本支持 x64/ARM64、.NET 10/.NET 8、自包含程序和 DEB 安装包：
+The interactive script supports x64/ARM64, .NET 10/.NET 8, self-contained binaries, and DEB packages:
 
 ```bash
 bash installer/build-linux.sh
 ```
 
-构建 DEB 还需要 `dpkg-deb`。
+Building a DEB also requires `dpkg-deb`.
 
 ### macOS
 
-交互式脚本支持 Apple Silicon/Intel、.NET 10/.NET 8，并可生成 `.app` 与 ZIP：
+The interactive script supports Apple Silicon/Intel, .NET 10/.NET 8, and can create an `.app` and ZIP:
 
 ```bash
 bash installer/build-macos.sh
 ```
 
-.NET 10 为默认构建目标，脚本同时提供 .NET 8 兼容构建。应用包不在 `Info.plist` 中声明最低 macOS 版本；生成应用包需要项目根目录中的 `CodexLimitWidget.icns` 和系统自带的 `codesign`。
+.NET 10 is the default target; the script also provides a .NET 8 compatibility build. The application bundle does not declare a minimum macOS version in `Info.plist`; building requires `CodexLimitWidget.icns` in the repository root and the system `codesign` command.
 
-## 日志
+## Logs
 
-- Windows：`%LOCALAPPDATA%\CodexLimitWidget\Logs\widget.log`
-- Linux：`$XDG_STATE_HOME/CodexLimitWidget/Logs/widget.log`
-- Linux 未设置 `XDG_STATE_HOME`：`~/.local/state/CodexLimitWidget/Logs/widget.log`
-- macOS：`~/Library/Logs/CodexLimitWidget/widget.log`
+- Windows: `%LOCALAPPDATA%\CodexLimitWidget\Logs\widget.log`
+- Linux: `$XDG_STATE_HOME/CodexLimitWidget/Logs/widget.log`
+- Linux without `XDG_STATE_HOME`: `~/.local/state/CodexLimitWidget/Logs/widget.log`
+- macOS: `~/Library/Logs/CodexLimitWidget/widget.log`
 
-## CI 与发布
+## CI and releases
 
-GitHub Actions 会在 Windows、Ubuntu 和 macOS 上执行 Release 构建与测试。推送 `v*` 标签或手动触发工作流时，还会生成：
+GitHub Actions performs Release builds and tests on Windows, Ubuntu, and macOS. A `v*` tag or a manually triggered workflow also creates:
 
-- Windows x64 安装程序
-- Linux x64 自包含程序和 DEB
-- macOS Apple Silicon 与 Intel `.app`
+- Windows x64 installer
+- Linux x64 self-contained binary and DEB package
+- macOS Apple Silicon and Intel `.app` bundles
 
-## 许可证
+## License
 
-本项目采用 [Apache License 2.0](LICENSE)。
+This project is licensed under the [Apache License 2.0](LICENSE).
