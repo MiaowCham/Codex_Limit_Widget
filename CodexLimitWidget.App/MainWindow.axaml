@@ -1,0 +1,30 @@
+<Window xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:vm="using:CodexLimitWidget.App.ViewModels" x:Class="CodexLimitWidget.App.MainWindow" x:DataType="vm:MainWindowViewModel" Width="300" Height="98" CanResize="False" WindowDecorations="None" WindowStartupLocation="CenterScreen" ShowInTaskbar="False" Topmost="True" Background="Transparent" TransparencyLevelHint="Transparent">
+  <Border CornerRadius="10" ClipToBounds="True" BorderBrush="#2A384E" BorderThickness="1" Background="#FA121E2E">
+    <Canvas Width="300" Height="98" PointerPressed="Surface_PointerPressed">
+      <Border Canvas.Left="74" Canvas.Top="10" Width="1" Height="37" Background="#414E60"/>
+      <Viewbox Canvas.Left="11" Canvas.Top="10" Width="60" Height="40" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Left" VerticalAlignment="Center" ToolTip.Tip="主窗口已用比例"><TextBlock Text="{Binding Badge}" Foreground="{Binding BadgeBrush}" FontSize="35.5" FontWeight="Bold" FontFamily="Bahnschrift SemiCondensed,Bahnschrift,Segoe UI"/></Viewbox>
+      <TextBlock Canvas.Left="82" Canvas.Top="8" Width="142" Height="25" Text="{Binding Headline}" Foreground="White" FontSize="19.3" FontWeight="SemiBold" VerticalAlignment="Center" FontFamily="Microsoft YaHei UI,Segoe UI"/>
+      <TextBlock Canvas.Left="84" Canvas.Top="32" Width="140" Height="15" Text="{Binding Plan}" Foreground="#94A3B8" FontSize="10.7" FontWeight="Bold" FontFamily="Segoe UI"/>
+
+      <Button x:Name="PinButton" Canvas.Left="232" Canvas.Top="8" Width="18" Height="18" Classes="chrome" WindowDecorationProperties.ElementRole="None" Click="Pin_Click" ToolTip.Tip="取消置顶">
+        <Viewbox Width="13" Height="13"><Canvas Width="16" Height="16"><Path x:Name="PinIcon" Data="M4,2 L12,2 M5,2 L6,7 L3.5,10 L12.5,10 L10,7 L11,2 M8,10 L8,15" Stroke="#FFFFFF" StrokeThickness="1.35" StrokeLineCap="Round"/></Canvas></Viewbox>
+      </Button>
+      <Button Canvas.Left="254" Canvas.Top="8" Width="18" Height="18" Classes="chrome" WindowDecorationProperties.ElementRole="None" Click="Refresh_Click" ToolTip.Tip="刷新">
+        <Viewbox Width="13" Height="13"><Canvas Width="16" Height="16"><Path Data="M13,6 C12.2,3.7 9.8,2.4 7.4,2.9 C5.8,3.2 4.5,4.2 3.7,5.5 M3.7,5.5 L3.7,2.8 M3.7,5.5 L6.4,5.5 M3,10 C3.8,12.3 6.2,13.6 8.6,13.1 C10.2,12.8 11.5,11.8 12.3,10.5 M12.3,10.5 L12.3,13.2 M12.3,10.5 L9.6,10.5" Stroke="#E2E8F0" StrokeThickness="1.35" StrokeLineCap="Round"/></Canvas></Viewbox>
+      </Button>
+      <Button Canvas.Left="276" Canvas.Top="8" Width="18" Height="18" Classes="chrome close" WindowDecorationProperties.ElementRole="None" Click="Close_Click" ToolTip.Tip="关闭">
+        <Viewbox Width="12" Height="12"><Canvas Width="16" Height="16"><Path Data="M4,4 L12,12 M12,4 L4,12" Stroke="#F87171" StrokeThickness="1.5" StrokeLineCap="Round"/></Canvas></Viewbox>
+      </Button>
+
+      <ProgressBar Canvas.Left="10" Canvas.Top="50" Width="280" Height="10" Value="{Binding Usage}" Minimum="0" Maximum="100" Foreground="#22C55E" Background="#1E293B" ToolTip.Tip="绿色安全，橙色接近上限，红色临界"/>
+      <TextBlock Canvas.Left="10" Canvas.Top="66" Width="135" Height="15" Text="{Binding Summary}" Foreground="#FEF7FF" FontSize="10.5" FontWeight="Bold" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+      <TextBlock Canvas.Left="145" Canvas.Top="66" Width="145" Height="15" Text="{Binding Countdown}" Foreground="#FEF7FF" FontSize="10.5" FontWeight="Bold" TextAlignment="Right" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+      <TextBlock Canvas.Left="10" Canvas.Top="81" Width="155" Height="13" Text="{Binding Details}" Foreground="#94A3B8" FontSize="8.5" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+      <TextBlock Canvas.Left="170" Canvas.Top="81" Width="120" Height="13" Text="{Binding Updated}" Foreground="#94A3B8" FontSize="8.5" TextAlignment="Right" VerticalAlignment="Center"/>
+    </Canvas>
+  </Border>
+  <Window.Styles>
+    <Style Selector="Button.chrome"><Setter Property="Background" Value="#141C2C"/><Setter Property="Foreground" Value="#E2E8F0"/><Setter Property="BorderThickness" Value="0"/><Setter Property="Padding" Value="0"/><Setter Property="Focusable" Value="False"/><Setter Property="HorizontalContentAlignment" Value="Center"/><Setter Property="VerticalContentAlignment" Value="Center"/></Style>
+    <Style Selector="Button.close"><Setter Property="Foreground" Value="#F87171"/></Style>
+  </Window.Styles>
+</Window>

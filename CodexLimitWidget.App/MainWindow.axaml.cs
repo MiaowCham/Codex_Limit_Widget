@@ -1,0 +1,48 @@
+using Avalonia.Controls;
+using Avalonia.Interactivity;
+using Avalonia.Input;
+using Avalonia;
+using Avalonia.Threading;
+using Avalonia.VisualTree;
+using Avalonia.Media;
+using CodexLimitWidget.Core;
+using CodexLimitWidget.App.ViewModels;
+
+namespace CodexLimitWidget.App;
+public partial class MainWindow : Window
+{
+    private readonly CodexAppServerRateLimitProvider _provider;
+    private readonly FileAppLogger _logger;
+    private readonly MainWindowViewModel _viewModel;
+    private readonly DispatcherTimer _timer;
+    private readonly CancellationTokenSource _closing = new();
+    public MainWindow() { InitializeComponent(); _logger = Program.Logger; _logger.Info("Main window constructed."); _provider = new CodexAppServerRateLimitProvider("0.1.0", logger: _logger); _viewModel = new MainWindowViewModel(_provider, _logger); DataContext = _viewModel; _timer = new DispatcherTimer(TimeSpan.FromSeconds(Program.RefreshIntervalSeconds), DispatcherPriority.Background, (_, _) => QueueRefresh("timer")); Opened += (_, _) => { _logger.Info("Main window opened."); PositionAtTopRight(); _timer.Start(); QueueRefresh("startup"); }; Closed += async (_, _) => { _logger.Info("Main window closing."); _timer.Stop(); _closing.Cancel(); await _provider.DisposeAsync(); _closing.Dispose(); }; }
+    private void QueueRefresh(string source)
+    {
+        _logger.Info($"Refresh queued by {source}.");
+        _ = RefreshInBackgroundAsync();
+    }
+    private async Task RefreshInBackgroundAsync()
+    {
+        try { await _viewModel.RefreshAsync(_closing.Token); }
+        catch (Exception exception) { _logger.Error("Unexpected window refresh failure", exception); }
+    }
+    private void Refresh_Click(object? sender, RoutedEventArgs e) => QueueRefresh("button");
+    private void Pin_Click(object? sender, RoutedEventArgs e)
+    {
+        Topmost = !Topmost;
+        PinIcon.Stroke = Topmost ? Brushes.White : Brush.Parse("#94A3B8");
+        ToolTip.SetTip(PinButton, Topmost ? "取消置顶" : "启用置顶");
+    }
+    private void Close_Click(object? sender, RoutedEventArgs e) => Close();
+    private void Surface_PointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (!IsButtonSource(e.Source) && e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
+        {
+            e.Handled = true;
+            BeginMoveDrag(e);
+        }
+    }
+    private static bool IsButtonSource(object? source) => source is Visual visual && (visual is Button || visual.FindAncestorOfType<Button>() is not null);
+    private void PositionAtTopRight() { var area = Screens.Primary?.WorkingArea; if (area is { } workArea) Position = new PixelPoint(workArea.Right - (int)(Bounds.Width * RenderScaling), workArea.Y + 12); }
+}
