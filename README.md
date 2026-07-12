@@ -1,173 +1,136 @@
 <div align="center">
-<img src="icon.png" width="20%" alt="icon" style="margin-bottom: -20px;"/>
+<img src="icon.png" width="20%" alt="Codex Limit Widget 图标" style="margin-bottom: -20px;"/>
 
-# Codex Limit Widget Dev
-[![MIT](https://img.shields.io/badge/License-Apache%202.0-orange.svg)](https://github.com/MiaowCham/Codex_Limit_Widget/blob/main/LICENSE)
+# Codex Limit Widget
+[![Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-orange.svg)](https://github.com/MiaowCham/Codex_Limit_Widget/blob/main/LICENSE)
 [![Static Badge](https://img.shields.io/badge/Languages-C%23-blue.svg)](https://github.com/search?q=repo%3AMiaowCham%2FCodex_Limit_Widget++language%3AC%23&type=code)
 [![Github Release](https://img.shields.io/github/v/release/MiaowCham/Codex_Limit_Widget)](https://github.com/MiaowCham/Codex_Limit_Widget/releases)
 [![GitHub Actions](https://img.shields.io/github/actions/workflow/status/MiaowCham/Codex_Limit_Widget/.github/workflows/build.yml)](https://github.com/MiaowCham/Codex_Limit_Widget/actions/workflows/build.yml)
 [![GitHub last commit](https://img.shields.io/github/last-commit/MiaowCham/Codex_Limit_Widget)](https://github.com/MiaowCham/Codex_Limit_Widget/commits/main)
 
-一个轻量的 Codex 限额查看小组件，**跨平台测试版**
+一个用于查看 Codex 用量与重置时间的轻量跨平台桌面组件。
 
 </div>
 
->[!note]
->本项目使用AI生成。  
->This project uses AI generation.
+> [!NOTE]
+> 本项目使用 AI 辅助开发。  
+> This project is developed with AI assistance.
 
-## TODO
+## 功能
 
-- [x] 确认各系统构建版本运行情况
-  - [x] Windows
-  - [x] Linux (WSL2)
-  - [x] macOS (Intel 12.7.4)
-- [ ] 构建 Linux、macOS 软件包
-- [ ] 适配 Inno Setup 打包
-- [ ] 适配各系统托盘图标
-- [ ] 增加全平台 CI 构建流程
+- 显示主要限额、周限额、重置时间、Credits 和当前套餐
+- 支持定时刷新与手动刷新
+- 支持窗口拖动和置顶切换
+- 支持系统托盘菜单：显示/隐藏窗口、切换置顶、刷新、打开项目主页和退出
+- 提供 `status` 与 `watch` 两种 CLI 查询模式
+- 在 Windows、Linux 和 macOS 上构建并测试
 
-## 依赖与当前限制
+## 运行要求
 
-跨平台版本使用 .NET 10 + Avalonia 12，并要求 `codex` CLI 可通过 `PATH` 找到。  
-IDE 插件不会自动提供 `codex` CLI；Linux/macOS 用户需要单独安装 CLI。
+跨平台桌面端基于 Avalonia 12。正式构建使用 .NET 10；App、CLI、Core 和测试项目在使用较旧 SDK 时也可回退到 `net8.0`。
 
-当前迁移状态：Windows、Linux、macOS 均可生成 RID 产物，但 Linux/macOS 尚未组装原生安装包或 `.app`，需要手动运行二进制文件。  
-现有 Inno Setup 脚本只适用于旧版 Windows/WinForms 项目，尚未适配 Avalonia 跨平台版本。
+程序通过 `codex app-server` 读取限额，因此要求：
 
-### 安装 .NET 10
+- 已安装 Codex CLI
+- `codex` 命令可通过 `PATH` 找到
+- Codex CLI 已完成登录
 
-官方安装入口：[Install .NET](https://dotnet.microsoft.com/download/dotnet/10.0)。
-
-Windows（PowerShell）：
-
-```powershell
-winget install Microsoft.DotNet.SDK.10
-```
-
-Ubuntu/Debian 等 Linux，也可以使用官方脚本进行用户级安装：
-
-```bash
-curl -fsSL https://dot.net/v1/dotnet-install.sh -o dotnet-install.sh
-bash dotnet-install.sh --channel 10.0
-export PATH="$HOME/.dotnet:$HOME/.dotnet/tools:$PATH"
-```
-
-macOS：
-
-```bash
-brew install --cask dotnet-sdk
-```
-
-也可以从官方页面下载对应的 macOS Arm64 或 x64 SDK。当前项目的 .NET 10 官方支持范围最低为 macOS 14；macOS 12 Monterey 不属于本项目的正式支持目标。
+IDE 插件通常不会自动提供独立的 `codex` CLI，必要时请单独安装。
 
 ## 使用
 
-### 使用构建版
+### 安装构建版
 
-~~前往 Release 页或 CI 构建中获取安装包，安装后使用。~~  
-跨平台版暂未打包和提供软件包，请直接直接 dotnet 运行，或自行构建二进制文件。
+前往 [Releases](https://github.com/MiaowCham/Codex_Limit_Widget/releases) 或 GitHub Actions 构建产物下载：
 
-### 终端查看
+- Windows x64：Inno Setup 安装程序
+- Linux x64：自包含可执行文件和 DEB 安装包
+- macOS：Apple Silicon 与 Intel 的 ad-hoc 签名 `.app`
 
-```powershell
- dotnet run --project CodexLimitWidget.Cli -- status
-```
+macOS 产物未进行 Apple Developer ID 签名或公证，首次运行时可能需要在系统设置中手动允许。
 
-### 终端持续刷新
-
-```powershell
- dotnet run --project CodexLimitWidget.Cli -- watch --interval 60
-```
-
-### 启动悬浮窗
+### 启动桌面组件
 
 ```powershell
 dotnet run --project CodexLimitWidget.App -- --interval 60
 ```
 
-## 各平台构建与启动
+`--interval` 的单位为秒，可设置为 `1` 至 `86400`，默认值为 `60`。
+
+### 查询一次
+
+```powershell
+dotnet run --project CodexLimitWidget.Cli -- status
+```
+
+### 持续查询
+
+```powershell
+dotnet run --project CodexLimitWidget.Cli -- watch --interval 60
+```
+
+按 `Ctrl+C` 停止持续查询。
+
+## 从源码构建
+
+推荐安装 [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)。
+
+```powershell
+dotnet build CodexLimitWidget.slnx -c Release
+dotnet test CodexLimitWidget.slnx -c Release --no-build
+```
 
 ### Windows x64
+
+生成自包含单文件程序：
 
 ```powershell
 dotnet publish CodexLimitWidget.App/CodexLimitWidget.App.csproj `
   -c Release -r win-x64 --self-contained true `
-  -p:PublishSingleFile=true -o publish/windows-x64
-.\publish\windows-x64\CodexLimitWidget.App.exe --interval 60
+  -p:PublishSingleFile=true -o publish/win-x64/app
 ```
 
-日志：`%LOCALAPPDATA%\CodexLimitWidget\Logs\widget.log`。
-
-### Linux x64
-
-```bash
-dotnet publish CodexLimitWidget.App/CodexLimitWidget.App.csproj \
-  -c Release -r linux-x64 --self-contained true \
-  -p:PublishSingleFile=true -o publish/linux-x64
-chmod +x publish/linux-x64/CodexLimitWidget.App
-./publish/linux-x64/CodexLimitWidget.App --interval 60
-```
-
-Linux 当前没有 AppImage、DEB 或 RPM 安装包，需要手动运行二进制文件。日志默认位于：
-
-```text
-$XDG_STATE_HOME/CodexLimitWidget/Logs/widget.log
-```
-
-未设置 `XDG_STATE_HOME` 时使用 `~/.local/state/CodexLimitWidget/Logs/widget.log`。
-
-### macOS Apple Silicon / Intel
-
-```bash
-# Apple Silicon
-dotnet publish CodexLimitWidget.App/CodexLimitWidget.App.csproj \
-  -c Release -r osx-arm64 --self-contained true \
-  -p:PublishSingleFile=true -o publish/osx-arm64
-
-# Intel
-dotnet publish CodexLimitWidget.App/CodexLimitWidget.App.csproj \
-  -c Release -r osx-x64 --self-contained true \
-  -p:PublishSingleFile=true -o publish/osx-x64
-
-chmod +x publish/osx-arm64/CodexLimitWidget.App
-./publish/osx-arm64/CodexLimitWidget.App --interval 60
-```
-
-macOS 当前没有 `.app`、DMG、签名或 notarization 产物，需要手动运行发布目录中的二进制文件。日志位于：`~/Library/Logs/CodexLimitWidget/widget.log`。
-
-macOS 正式分发前还需要组装 `Contents/MacOS`、`Contents/Resources` 和 `Info.plist`，然后进行签名与公证。
-
-## Release 与安装包
-
-当前稳定版使用 Inno Setup 6 生成 Windows 安装包；跨平台迁移中的 App 与 CLI 可独立构建：
+生成 Inno Setup 安装程序需要安装 Inno Setup 6：
 
 ```powershell
-dotnet build CodexLimitWidget.slnx -c Release
-dotnet test CodexLimitWidget.slnx -c Release
-dotnet publish CodexLimitWidget.App -c Release -r win-x64 --self-contained true
+./installer/build-windows.ps1 -Version 0.2.2
 ```
 
-GitHub Actions 会在 Windows、Ubuntu 与 macOS 上执行 restore、build 和测试；标签构建另会生成对应 RID 的 App 与 CLI 自包含产物。Linux/macOS 安装包尚未完成，Inno Setup 脚本也未适配此跨平台版本。
+### Linux
 
-旧版打包命令：
+交互式脚本支持 x64/ARM64、.NET 10/.NET 8、自包含程序和 DEB 安装包：
 
-```powershell
-# Release 发布（框架依赖、不含 PDB）
-.\installer\build.ps1 -Choice 2
-
-# Release 单文件发布（框架依赖、不含 PDB）
-.\installer\build.ps1 -Choice 3
-
-# 发布并生成安装包
-.\installer\build.ps1 -Choice 4
+```bash
+bash installer/build-linux.sh
 ```
 
-安装包输出到 `dist`，发布文件输出到 `publish`。
+构建 DEB 还需要 `dpkg-deb`。
 
-## GUI 说明
+### macOS
 
-- 左键拖动窗口
-- 使用“刷新”按钮手动刷新，或通过 `--interval` 设置定时刷新
-- 使用“置顶”按钮切换窗口置顶
-- 首期不提供系统托盘、双击刷新和自动启动
+交互式脚本支持 Apple Silicon/Intel、.NET 10/.NET 8，并可生成 `.app` 与 ZIP：
+
+```bash
+bash installer/build-macos.sh
+```
+
+.NET 10 构建以 macOS 14 及以上版本为正式目标；脚本同时提供面向 macOS 12 的 .NET 8 实验性兼容构建。生成应用包需要项目根目录中的 `CodexLimitWidget.icns` 和系统自带的 `codesign`。
+
+## 日志
+
+- Windows：`%LOCALAPPDATA%\CodexLimitWidget\Logs\widget.log`
+- Linux：`$XDG_STATE_HOME/CodexLimitWidget/Logs/widget.log`
+- Linux 未设置 `XDG_STATE_HOME`：`~/.local/state/CodexLimitWidget/Logs/widget.log`
+- macOS：`~/Library/Logs/CodexLimitWidget/widget.log`
+
+## CI 与发布
+
+GitHub Actions 会在 Windows、Ubuntu 和 macOS 上执行 Release 构建与测试。推送 `v*` 标签或手动触发工作流时，还会生成：
+
+- Windows x64 安装程序
+- Linux x64 自包含程序和 DEB
+- macOS Apple Silicon 与 Intel `.app`
+
+## 许可证
+
+本项目采用 [Apache License 2.0](LICENSE)。

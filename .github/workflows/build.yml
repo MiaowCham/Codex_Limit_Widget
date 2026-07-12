@@ -11,7 +11,7 @@ on:
       version:
         description: "打包版本号（x.y.z；可选 v 前缀）"
         required: true
-        default: "0.2.2"
+        default: "0.2.3"
         type: string
 
 jobs:

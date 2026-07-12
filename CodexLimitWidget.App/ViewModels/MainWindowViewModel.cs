@@ -39,7 +39,14 @@ public sealed class MainWindowViewModel : ViewModelBase
             {
                 _logger.Info($"Primary used percent dropped from {previous}% to {current}%; starting one confirmation read after one second.");
                 await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken).ConfigureAwait(true);
-                snapshot = await ReadOnWorkerAsync(cancellationToken).ConfigureAwait(true);
+                try
+                {
+                    snapshot = await ReadOnWorkerAsync(cancellationToken).ConfigureAwait(true);
+                }
+                catch (Exception confirmationError) when (confirmationError is not OperationCanceledException)
+                {
+                    _logger.Error("Primary used percent confirmation read", confirmationError);
+                }
             }
             ApplySnapshot(snapshot);
         }

@@ -21,10 +21,28 @@ public sealed class MainWindowViewModelTests
         await vm.RefreshAsync(CancellationToken.None);
         Assert.Equal("读取失败", vm.Headline); Assert.Equal("PLAN PRO", vm.Plan); Assert.Equal(25, vm.Usage); Assert.Equal("offline", vm.ErrorMessage);
     }
-    private static RateLimitSnapshot CreateSnapshot() => new("codex", null, "pro", null, null, new(25, 300, null), new(50, null, null), null);
+    [Fact]
+    public async Task FailedConfirmationReadAppliesFirstSuccessfulSnapshot()
+    {
+        var provider = new SequenceProvider(CreateSnapshot(), CreateSnapshot(10), new InvalidOperationException("offline"));
+        var vm = new MainWindowViewModel(provider);
+        await vm.RefreshAsync(CancellationToken.None);
+        await vm.RefreshAsync(CancellationToken.None);
+        Assert.Equal("剩余 90%", vm.Headline); Assert.Equal("010", vm.Badge); Assert.Equal(10, vm.Usage); Assert.Empty(vm.ErrorMessage);
+    }
+    private static RateLimitSnapshot CreateSnapshot(int usedPercent = 25) => new("codex", null, "pro", null, null, new(usedPercent, 300, null), new(50, null, null), null);
     private sealed class FakeProvider(RateLimitSnapshot snapshot) : IRateLimitProvider
     {
         public Exception? Exception { get; set; }
         public Task<RateLimitSnapshot> ReadAsync(CancellationToken cancellationToken) => Exception is { } ex ? Task.FromException<RateLimitSnapshot>(ex) : Task.FromResult(snapshot);
+    }
+    private sealed class SequenceProvider(params object[] results) : IRateLimitProvider
+    {
+        private readonly Queue<object> _results = new(results);
+        public Task<RateLimitSnapshot> ReadAsync(CancellationToken cancellationToken)
+        {
+            var result = _results.Dequeue();
+            return result is Exception error ? Task.FromException<RateLimitSnapshot>(error) : Task.FromResult((RateLimitSnapshot)result);
+        }
     }
 }

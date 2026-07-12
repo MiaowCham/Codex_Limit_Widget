@@ -9,7 +9,7 @@
             <NativeMenuItem Header="取消置顶" Click="ToggleTopmost_Click"/>
             <NativeMenuItem Header="刷新" Click="Refresh_Click"/>
             <NativeMenuItemSeparator/>
-            <NativeMenuItem Header="版本 0.2.2" Click="OpenRepository_Click"/>
+            <NativeMenuItem Header="版本 0.2.3" Click="OpenRepository_Click"/>
             <NativeMenuItem Header="退出" Click="Exit_Click"/>
           </NativeMenu>
         </TrayIcon.Menu>
