@@ -18,10 +18,10 @@
 
 ## TODO
 
-- [ ] 确认各系统构建版本运行情况
+- [x] 确认各系统构建版本运行情况
   - [x] Windows
   - [x] Linux (WSL2)
-  - [ ] macOS
+  - [x] macOS (Intel 12.7.4)
 - [ ] 构建 Linux、macOS 软件包
 - [ ] 适配 Inno Setup 打包
 - [ ] 适配各系统托盘图标
