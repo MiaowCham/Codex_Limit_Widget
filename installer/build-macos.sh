@@ -28,7 +28,12 @@ create_app() {
   local app="$root/dist/$name.app"
   rm -rf "$app"
   install -d "$app/Contents/MacOS" "$app/Contents/Resources"
-  install -m 0755 "$source/CodexLimitWidget.App" "$app/Contents/MacOS/CodexLimitWidget"
+  # Avalonia self-contained output includes native libraries next to the apphost.
+  # Copy the complete publish directory; copying only the executable makes the
+  # bundle silently fail at launch when dyld cannot find those dependencies.
+  ditto "$source" "$app/Contents/MacOS"
+  mv "$app/Contents/MacOS/CodexLimitWidget.App" "$app/Contents/MacOS/CodexLimitWidget"
+  chmod 0755 "$app/Contents/MacOS/CodexLimitWidget"
   install -m 0644 "$icon" "$app/Contents/Resources/CodexLimitWidget.icns"
   cat > "$app/Contents/Info.plist" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
