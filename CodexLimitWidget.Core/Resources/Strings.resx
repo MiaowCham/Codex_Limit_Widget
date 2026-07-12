@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="Unknown" xml:space="preserve"><value>Unknown</value></data>
+  <data name="Expired" xml:space="preserve"><value>Expired</value></data>
+  <data name="DurationMinutes" xml:space="preserve"><value>{0} min</value></data>
+  <data name="DurationHoursMinutes" xml:space="preserve"><value>{0}h {1}m</value></data>
+  <data name="RateLimitResponseNotObject" xml:space="preserve"><value>The app-server rate-limit response is not an object.</value></data>
+  <data name="RateLimitBucketMissing" xml:space="preserve"><value>The app-server did not return a codex rate-limit bucket.</value></data>
+  <data name="RateLimitBucketInvalid" xml:space="preserve"><value>The app-server returned an invalid codex rate-limit bucket.</value></data>
+  <data name="StatusPlan" xml:space="preserve"><value>Plan: {0}</value></data>
+  <data name="StatusLimitId" xml:space="preserve"><value>Limit ID: {0}</value></data>
+  <data name="StatusPrimaryUsage" xml:space="preserve"><value>Primary window: {0}% used / {1}% remaining</value></data>
+  <data name="StatusPrimaryReset" xml:space="preserve"><value>Primary reset: {0}</value></data>
+  <data name="StatusSecondaryUsage" xml:space="preserve"><value>Secondary window: {0}% used</value></data>
+  <data name="StatusSecondaryReset" xml:space="preserve"><value>Secondary reset: {0}</value></data>
+  <data name="StatusCredits" xml:space="preserve"><value>Credits: {0}</value></data>
+  <data name="StatusReached" xml:space="preserve"><value>Status: {0}</value></data>
+  <data name="StatusResetCredits" xml:space="preserve"><value>Available reset credits: {0}</value></data>
+  <data name="Unlimited" xml:space="preserve"><value>Unlimited</value></data>
+  <data name="ReadFailed" xml:space="preserve"><value>Read failed: {0}</value></data>
+  <data name="CliHelp" xml:space="preserve"><value>CodexLimitWidget {0}
+
+Usage:
+  CodexLimitWidget.Cli status [--language &lt;culture&gt;]
+  CodexLimitWidget.Cli watch [--interval &lt;seconds&gt;] [--language &lt;culture&gt;]</value></data>
+  <data name="InvalidInterval" xml:space="preserve"><value>--interval must be between 1 and 86400 seconds.</value></data>
+  <data name="InvalidLanguage" xml:space="preserve"><value>Invalid language culture: {0}.</value></data>
+  <data name="AppServerStartFailed" xml:space="preserve"><value>Could not start Codex app-server.</value></data>
+  <data name="CodexCliNotFound" xml:space="preserve"><value>Could not find or start Codex CLI. Ensure `codex` is installed and available on PATH.</value></data>
+  <data name="ReadLimitFailed" xml:space="preserve"><value>Could not read rate limits: {0}</value></data>
+  <data name="AppServerResultMissing" xml:space="preserve"><value>The app-server response is missing result.</value></data>
+  <data name="AppServerInitializationFailed" xml:space="preserve"><value>Codex app-server initialization failed.</value></data>
+  <data name="AppServerNotStarted" xml:space="preserve"><value>Codex app-server has not started.</value></data>
+  <data name="AppServerExited" xml:space="preserve"><value>Codex app-server exited early (exit code {0}).</value></data>
+  <data name="AppServerExitedWithoutCode" xml:space="preserve"><value>Codex app-server exited early.</value></data>
+  <data name="AppServerTimeout" xml:space="preserve"><value>Timed out waiting 15 seconds for Codex app-server to respond to {0}.</value></data>
+  <data name="Loading" xml:space="preserve"><value>Loading…</value></data>
+  <data name="Refreshing" xml:space="preserve"><value>Refreshing…</value></data>
+  <data name="RefreshFailed" xml:space="preserve"><value>Refresh failed</value></data>
+  <data name="RemainingPercent" xml:space="preserve"><value>{0}% Left</value></data>
+  <data name="LimitUnknown" xml:space="preserve"><value>Limit unknown</value></data>
+  <data name="Plan" xml:space="preserve"><value>PLAN {0}</value></data>
+  <data name="ResetAt" xml:space="preserve"><value>Reset in {0}</value></data>
+  <data name="WeeklyLimit" xml:space="preserve"><value>Weekly limit {0}%, {1}</value></data>
+  <data name="Details" xml:space="preserve"><value>Credits {0} | Reset credits {1}</value></data>
+  <data name="UpdatedAt" xml:space="preserve"><value>Updated at {0}</value></data>
+  <data name="ReadFailure" xml:space="preserve"><value>Read failed</value></data>
+  <data name="CodexCliMissing" xml:space="preserve"><value>Codex CLI not found</value></data>
+  <data name="InstallCodexCli" xml:space="preserve"><value>Please install Codex CLI first</value></data>
+  <data name="LinuxIdeCliNote" xml:space="preserve"><value>Linux IDE extensions do not automatically provide the CLI</value></data>
+  <data name="ResetTimeWithDateFormat" xml:space="preserve"><value>MM/dd HH:mm</value></data>
+  <data name="ResetTimeFormat" xml:space="preserve"><value>HH:mm</value></data>
+  <data name="TooltipPrimaryUsage" xml:space="preserve"><value>Primary-window usage</value></data>
+  <data name="TooltipDisableTopmost" xml:space="preserve"><value>Disable always on top</value></data>
+  <data name="TooltipEnableTopmost" xml:space="preserve"><value>Enable always on top</value></data>
+  <data name="TooltipRefresh" xml:space="preserve"><value>Refresh</value></data>
+  <data name="TooltipClose" xml:space="preserve"><value>Close</value></data>
+  <data name="TooltipUsageColors" xml:space="preserve"><value>Green is safe, orange is near the limit, and red is critical</value></data>
+  <data name="TrayHideWindow" xml:space="preserve"><value>Hide window</value></data>
+  <data name="TrayShowWindow" xml:space="preserve"><value>Show window</value></data>
+  <data name="TrayRefresh" xml:space="preserve"><value>Refresh</value></data>
+  <data name="TrayVersion" xml:space="preserve"><value>version {0}</value></data>
+  <data name="TrayExit" xml:space="preserve"><value>Exit</value></data>
+</root>

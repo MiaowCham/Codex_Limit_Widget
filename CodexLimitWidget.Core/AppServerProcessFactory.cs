@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using CodexLimitWidget.Core.Resources;
 
 namespace CodexLimitWidget.Core;
 
@@ -22,8 +23,8 @@ public sealed class DefaultAppServerProcessFactory : IAppServerProcessFactory
             RedirectStandardError = true,
             CreateNoWindow = true,
         };
-        try { return Process.Start(startInfo) ?? throw new InvalidOperationException("无法启动 Codex app-server。"); }
-        catch (Exception ex) { throw new InvalidOperationException("找不到或无法启动 Codex CLI。请确认 `codex` 已安装并位于 PATH 中。", ex); }
+        try { return Process.Start(startInfo) ?? throw new InvalidOperationException(Strings.Get("AppServerStartFailed")); }
+        catch (Exception ex) { throw new InvalidOperationException(Strings.Get("CodexCliNotFound"), ex); }
     }
 
     private static (string FileName, string Arguments) ResolveCodexCommand()

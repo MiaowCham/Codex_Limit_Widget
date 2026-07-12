@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="Unknown" xml:space="preserve"><value>未知</value></data>
+  <data name="Expired" xml:space="preserve"><value>已到期</value></data>
+  <data name="DurationMinutes" xml:space="preserve"><value>{0} 分鐘</value></data>
+  <data name="DurationHoursMinutes" xml:space="preserve"><value>{0} 小時 {1} 分鐘</value></data>
+  <data name="RateLimitResponseNotObject" xml:space="preserve"><value>app-server 回傳的限額回應不是物件。</value></data>
+  <data name="RateLimitBucketMissing" xml:space="preserve"><value>app-server 未回傳 codex 限額桶。</value></data>
+  <data name="RateLimitBucketInvalid" xml:space="preserve"><value>app-server 回傳的 codex 限額桶格式無效。</value></data>
+  <data name="StatusPlan" xml:space="preserve"><value>方案: {0}</value></data>
+  <data name="StatusLimitId" xml:space="preserve"><value>限額 ID: {0}</value></data>
+  <data name="StatusPrimaryUsage" xml:space="preserve"><value>主要時段: 已用 {0}% / 剩餘 {1}%</value></data>
+  <data name="StatusPrimaryReset" xml:space="preserve"><value>主要時段重設: {0}</value></data>
+  <data name="StatusSecondaryUsage" xml:space="preserve"><value>次要時段: 已用 {0}%</value></data>
+  <data name="StatusSecondaryReset" xml:space="preserve"><value>次要時段重設: {0}</value></data>
+  <data name="StatusCredits" xml:space="preserve"><value>Credits: {0}</value></data>
+  <data name="StatusReached" xml:space="preserve"><value>狀態: {0}</value></data>
+  <data name="StatusResetCredits" xml:space="preserve"><value>可用重設額度: {0}</value></data>
+  <data name="Unlimited" xml:space="preserve"><value>無限</value></data>
+  <data name="ReadFailed" xml:space="preserve"><value>讀取失敗: {0}</value></data>
+  <data name="CliHelp" xml:space="preserve"><value>CodexLimitWidget {0}
+
+用法:
+  CodexLimitWidget.Cli status [--language &lt;culture&gt;]
+  CodexLimitWidget.Cli watch [--interval &lt;seconds&gt;] [--language &lt;culture&gt;]</value></data>
+  <data name="InvalidInterval" xml:space="preserve"><value>--interval 必須介於 1 到 86400 秒之間。</value></data>
+  <data name="InvalidLanguage" xml:space="preserve"><value>無效的語言區域：{0}。</value></data>
+  <data name="AppServerStartFailed" xml:space="preserve"><value>無法啟動 Codex app-server。</value></data>
+  <data name="CodexCliNotFound" xml:space="preserve"><value>找不到或無法啟動 Codex CLI。請確認已安裝 `codex` 並可透過 PATH 找到。</value></data>
+  <data name="ReadLimitFailed" xml:space="preserve"><value>讀取限額失敗: {0}</value></data>
+  <data name="AppServerResultMissing" xml:space="preserve"><value>app-server 回應缺少 result。</value></data>
+  <data name="AppServerInitializationFailed" xml:space="preserve"><value>Codex app-server 初始化失敗。</value></data>
+  <data name="AppServerNotStarted" xml:space="preserve"><value>Codex app-server 尚未啟動。</value></data>
+  <data name="AppServerExited" xml:space="preserve"><value>Codex app-server 已提前結束（結束碼 {0}）。</value></data>
+  <data name="AppServerExitedWithoutCode" xml:space="preserve"><value>Codex app-server 已提前結束。</value></data>
+  <data name="AppServerTimeout" xml:space="preserve"><value>等待 Codex app-server 回應 {0} 已逾時（15 秒）。</value></data>
+  <data name="Loading" xml:space="preserve"><value>正在讀取…</value></data>
+  <data name="Refreshing" xml:space="preserve"><value>重新整理中…</value></data>
+  <data name="RefreshFailed" xml:space="preserve"><value>重新整理失敗</value></data>
+  <data name="RemainingPercent" xml:space="preserve"><value>剩餘 {0}%</value></data>
+  <data name="LimitUnknown" xml:space="preserve"><value>限額未知</value></data>
+  <data name="Plan" xml:space="preserve"><value>PLAN {0}</value></data>
+  <data name="ResetAt" xml:space="preserve"><value>將於 {0} 重設</value></data>
+  <data name="WeeklyLimit" xml:space="preserve"><value>每週限額 {0}% · {1}</value></data>
+  <data name="Details" xml:space="preserve"><value>Credits {0} | 重設額度 {1}</value></data>
+  <data name="UpdatedAt" xml:space="preserve"><value>{0} 更新</value></data>
+  <data name="ReadFailure" xml:space="preserve"><value>讀取失敗</value></data>
+  <data name="CodexCliMissing" xml:space="preserve"><value>找不到 Codex CLI</value></data>
+  <data name="InstallCodexCli" xml:space="preserve"><value>請先安裝 Codex CLI</value></data>
+  <data name="LinuxIdeCliNote" xml:space="preserve"><value>Linux IDE 外掛不會自動提供 CLI</value></data>
+  <data name="ResetTimeWithDateFormat" xml:space="preserve"><value>M 月 d 日 HH:mm</value></data>
+  <data name="ResetTimeFormat" xml:space="preserve"><value>HH:mm</value></data>
+  <data name="TooltipPrimaryUsage" xml:space="preserve"><value>主要時段已用比例</value></data>
+  <data name="TooltipDisableTopmost" xml:space="preserve"><value>取消置頂</value></data>
+  <data name="TooltipEnableTopmost" xml:space="preserve"><value>啟用置頂</value></data>
+  <data name="TooltipRefresh" xml:space="preserve"><value>重新整理</value></data>
+  <data name="TooltipClose" xml:space="preserve"><value>關閉</value></data>
+  <data name="TooltipUsageColors" xml:space="preserve"><value>綠色安全，橙色接近上限，紅色臨界</value></data>
+  <data name="TrayHideWindow" xml:space="preserve"><value>隱藏視窗</value></data>
+  <data name="TrayShowWindow" xml:space="preserve"><value>顯示視窗</value></data>
+  <data name="TrayRefresh" xml:space="preserve"><value>重新整理</value></data>
+  <data name="TrayVersion" xml:space="preserve"><value>版本 {0}</value></data>
+  <data name="TrayExit" xml:space="preserve"><value>結束</value></data>
+</root>

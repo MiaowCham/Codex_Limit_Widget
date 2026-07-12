@@ -1,6 +1,6 @@
 #define MyAppName "Codex Limit Widget"
 #ifndef MyAppVersion
-  #define MyAppVersion "0.2.3"
+  #define MyAppVersion "0.2.4"
 #endif
 #define MyAppPublisher "CodexLimitWidget Contributors"
 #define MyAppExeName "CodexLimitWidget.App.exe"
@@ -9,7 +9,10 @@
 #define MyAppLicensePath "..\LICENSE"
 
 [Languages]
-Name: "chinese_simplified"; MessagesFile: "compiler:Languages\ChineseSimplified.isl"
+Name: "english"; MessagesFile: "compiler:Default.isl"
+Name: "chinese_simplified"; MessagesFile: "Languages\ChineseSimplified.isl"
+Name: "chinese_traditional"; MessagesFile: "Languages\ChineseTraditional.isl"
+Name: "japanese"; MessagesFile: "Languages\Japanese.isl"
 
 [Setup]
 AppId={{D64D2C37-0B3E-4A5C-9F0C-0E8A0C5D1987}

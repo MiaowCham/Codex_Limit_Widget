@@ -1,4 +1,5 @@
 using CodexLimitWidget.Core;
+using CodexLimitWidget.Core.Resources;
 using Avalonia.Media;
 
 namespace CodexLimitWidget.App.ViewModels;
@@ -9,7 +10,7 @@ public sealed class MainWindowViewModel : ViewModelBase
     private readonly IAppLogger _logger;
     private int _refreshing;
     private int? _lastSuccessfulUsedPercent;
-    private string _headline = "正在读取…", _plan = "", _summary = "", _countdown = "", _details = "", _updated = "", _errorMessage = "", _badge = "---";
+    private string _headline = Strings.Loading, _plan = "", _summary = "", _countdown = "", _details = "", _updated = "", _errorMessage = "", _badge = "---";
     private double _usage;
     private IBrush _badgeBrush = Brushes.LightGreen;
     private IBrush _usageBrush = Brushes.LightGreen;
@@ -30,7 +31,7 @@ public sealed class MainWindowViewModel : ViewModelBase
     {
         if (Interlocked.Exchange(ref _refreshing, 1) != 0) { _logger.Info("UI refresh ignored because a refresh is already active."); return; }
         _logger.Info("UI refresh started.");
-        Updated = "刷新中…";
+        Updated = Strings.Get("Refreshing");
         RaisePropertyChanged(nameof(IsRefreshing));
         try
         {
@@ -69,26 +70,26 @@ public sealed class MainWindowViewModel : ViewModelBase
         Task.Run(() => _provider.ReadAsync(cancellationToken), cancellationToken);
     private void ApplySnapshot(RateLimitSnapshot snapshot)
     {
-        Headline = snapshot.RemainingPercent is { } remaining ? $"剩余 {remaining}%" : "限额未知";
-        Plan = $"PLAN {(snapshot.PlanType ?? "unknown").ToUpperInvariant()}"; Usage = snapshot.Primary.UsedPercent ?? 0;
+        Headline = snapshot.RemainingPercent is { } remaining ? Strings.Format("RemainingPercent", remaining) : Strings.Get("LimitUnknown");
+        Plan = Strings.Format("Plan", (snapshot.PlanType ?? "unknown").ToUpperInvariant()); Usage = snapshot.Primary.UsedPercent ?? 0;
         Badge = snapshot.Primary.UsedPercent?.ToString("D3") ?? "---";
         BadgeBrush = UsageBrush = (snapshot.Primary.UsedPercent ?? 0) switch { >= 85 => Brushes.LightCoral, >= 60 => Brushes.Gold, _ => Brushes.LightGreen };
-        Summary = $"将于 {FormatResetMoment(snapshot.Primary.ResetsAt, false)} 重置";
-        Countdown = $"周限额 {snapshot.Secondary.UsedPercent?.ToString() ?? "--"}% · {FormatResetMoment(snapshot.Secondary.ResetsAt, true)}";
-        Details = $"Credits {(snapshot.Credits?.Unlimited == true ? "无限" : snapshot.Credits?.Balance ?? "0")} | 重置额度 {snapshot.RateLimitResetCredits?.ToString() ?? "0"}";
-        Updated = $"{DateTime.Now:HH:mm:ss} 更新"; ErrorMessage = "";
+        Summary = Strings.Format("ResetAt", FormatResetMoment(snapshot.Primary.ResetsAt, false));
+        Countdown = Strings.Format("WeeklyLimit", snapshot.Secondary.UsedPercent?.ToString() ?? "--", FormatResetMoment(snapshot.Secondary.ResetsAt, true));
+        Details = Strings.Format("Details", snapshot.Credits?.Unlimited == true ? Strings.Get("Unlimited") : snapshot.Credits?.Balance ?? "0", snapshot.RateLimitResetCredits?.ToString() ?? "0");
+        Updated = Strings.Format("UpdatedAt", DateTime.Now.ToString("T")); ErrorMessage = "";
         _lastSuccessfulUsedPercent = snapshot.Primary.UsedPercent;
         _logger.Info($"UI snapshot applied; primaryUsed={snapshot.Primary.UsedPercent?.ToString() ?? "unknown"}%, secondaryUsed={snapshot.Secondary.UsedPercent?.ToString() ?? "unknown"}%. ");
     }
     private void SetError(Exception exception)
     {
-        Headline = "读取失败"; Badge = "!"; BadgeBrush = UsageBrush = Brushes.LightCoral; ErrorMessage = exception.Message; Updated = "刷新失败";
+        Headline = Strings.Get("ReadFailure"); Badge = "!"; BadgeBrush = UsageBrush = Brushes.LightCoral; ErrorMessage = exception.Message; Updated = Strings.Get("RefreshFailed");
         if (exception.Message.Contains("Codex CLI", StringComparison.OrdinalIgnoreCase))
         {
-            Summary = "未找到 Codex CLI";
-            Countdown = "请先安装 Codex CLI";
-            Details = "Linux IDE 插件不会自动提供 CLI";
+            Summary = Strings.Get("CodexCliMissing");
+            Countdown = Strings.Get("InstallCodexCli");
+            Details = Strings.Get("LinuxIdeCliNote");
         }
     }
-    private static string FormatResetMoment(long? epochSeconds, bool includeDate) => epochSeconds is null or <= 0 ? "未知" : (includeDate || DateTimeOffset.FromUnixTimeSeconds(epochSeconds.Value).LocalDateTime.Date != DateTime.Today ? DateTimeOffset.FromUnixTimeSeconds(epochSeconds.Value).LocalDateTime.ToString("M月d日 HH:mm") : DateTimeOffset.FromUnixTimeSeconds(epochSeconds.Value).LocalDateTime.ToString("HH:mm"));
+    private static string FormatResetMoment(long? epochSeconds, bool includeDate) => epochSeconds is null or <= 0 ? Strings.Unknown : (includeDate || DateTimeOffset.FromUnixTimeSeconds(epochSeconds.Value).LocalDateTime.Date != DateTime.Today ? DateTimeOffset.FromUnixTimeSeconds(epochSeconds.Value).LocalDateTime.ToString(Strings.Get("ResetTimeWithDateFormat")) : DateTimeOffset.FromUnixTimeSeconds(epochSeconds.Value).LocalDateTime.ToString(Strings.Get("ResetTimeFormat")));
 }

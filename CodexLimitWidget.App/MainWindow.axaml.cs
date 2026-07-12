@@ -8,6 +8,7 @@ using Avalonia.Media;
 using System.Runtime.InteropServices;
 using CodexLimitWidget.Core;
 using CodexLimitWidget.App.ViewModels;
+using CodexLimitWidget.Core.Resources;
 
 namespace CodexLimitWidget.App;
 public partial class MainWindow : Window
@@ -19,7 +20,7 @@ public partial class MainWindow : Window
     private readonly CancellationTokenSource _closing = new();
     private const uint WmNcLeftButtonDown = 0x00A1;
     private const nuint HtCaption = 2;
-    public MainWindow() { InitializeComponent(); _logger = Program.Logger; _logger.Info("Main window constructed."); _provider = new CodexAppServerRateLimitProvider(Program.ApplicationVersion, logger: _logger); _viewModel = new MainWindowViewModel(_provider, _logger); DataContext = _viewModel; _timer = new DispatcherTimer(TimeSpan.FromSeconds(Program.RefreshIntervalSeconds), DispatcherPriority.Background, (_, _) => QueueRefresh("timer")); Opened += (_, _) => { _logger.Info("Main window opened."); PositionAtTopRight(); _timer.Start(); QueueRefresh("startup"); }; Closed += async (_, _) => { _logger.Info("Main window closing."); _timer.Stop(); _closing.Cancel(); await _provider.DisposeAsync(); _closing.Dispose(); }; }
+    public MainWindow() { InitializeComponent(); _logger = Program.Logger; _logger.Info("Main window constructed."); _provider = new CodexAppServerRateLimitProvider(Program.ApplicationVersion, logger: _logger); _viewModel = new MainWindowViewModel(_provider, _logger); DataContext = _viewModel; _timer = new DispatcherTimer(TimeSpan.FromSeconds(Program.RefreshIntervalSeconds), DispatcherPriority.Background, (_, _) => QueueRefresh("timer")); Opened += (_, _) => { _logger.Info("Main window opened."); PositionAtTopRight(); _timer.Start(); QueueRefresh("startup"); }; SizeChanged += (_, _) => PositionAtTopRight(); Closed += async (_, _) => { _logger.Info("Main window closing."); _timer.Stop(); _closing.Cancel(); await _provider.DisposeAsync(); _closing.Dispose(); }; }
     private void QueueRefresh(string source)
     {
         _logger.Info($"Refresh queued by {source}.");
@@ -43,7 +44,7 @@ public partial class MainWindow : Window
     {
         Topmost = !Topmost;
         PinIcon.Stroke = Topmost ? Brushes.White : Brush.Parse("#94A3B8");
-        ToolTip.SetTip(PinButton, Topmost ? "取消置顶" : "启用置顶");
+        ToolTip.SetTip(PinButton, Topmost ? Strings.TooltipDisableTopmost : Strings.TooltipEnableTopmost);
         _logger.Info($"Topmost changed from tray menu; enabled={Topmost}.");
         return Topmost;
     }

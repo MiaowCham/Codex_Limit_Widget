@@ -2,6 +2,9 @@
 <img src="icon.png" width="20%" alt="Codex Limit Widget 图标" style="margin-bottom: -20px;"/>
 
 # Codex Limit Widget
+
+[English](README.md) / 简体中文
+
 [![Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-orange.svg)](https://github.com/MiaowCham/Codex_Limit_Widget/blob/main/LICENSE)
 [![Static Badge](https://img.shields.io/badge/Languages-C%23-blue.svg)](https://github.com/search?q=repo%3AMiaowCham%2FCodex_Limit_Widget++language%3AC%23&type=code)
 [![Github Release](https://img.shields.io/github/v/release/MiaowCham/Codex_Limit_Widget)](https://github.com/MiaowCham/Codex_Limit_Widget/releases)

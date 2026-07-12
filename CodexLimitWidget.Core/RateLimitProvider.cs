@@ -2,6 +2,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Diagnostics;
+using CodexLimitWidget.Core.Resources;
 
 namespace CodexLimitWidget.Core;
 
@@ -65,8 +66,8 @@ public sealed class CodexAppServerRateLimitProvider : IRateLimitProvider, IAsync
     {
         if (_process is null || _process.HasExited) await StartAsync(cancellationToken).ConfigureAwait(false);
         var response = await RequestAsync("account/rateLimits/read", null, cancellationToken).ConfigureAwait(false);
-        if (response.TryGetProperty("error", out var error)) throw new InvalidOperationException($"读取限额失败: {error}");
-        if (!response.TryGetProperty("result", out var result)) throw new InvalidOperationException("app-server 响应缺少 result。");
+        if (response.TryGetProperty("error", out var error)) throw new InvalidOperationException(Strings.Format("ReadLimitFailed", error));
+        if (!response.TryGetProperty("result", out var result)) throw new InvalidOperationException(Strings.Get("AppServerResultMissing"));
         return RateLimitSnapshot.FromJson(result);
     }
 
@@ -78,14 +79,14 @@ public sealed class CodexAppServerRateLimitProvider : IRateLimitProvider, IAsync
         _stderrTask = _process.StandardError.ReadToEndAsync();
         var elapsed = Stopwatch.StartNew();
         var init = await RequestAsync("initialize", new { clientInfo = new { name = "codex-limit-widget", version = _version }, capabilities = new { experimentalApi = true } }, cancellationToken).ConfigureAwait(false);
-        if (!init.TryGetProperty("result", out _)) throw new InvalidOperationException("Codex app-server 初始化失败。");
+        if (!init.TryGetProperty("result", out _)) throw new InvalidOperationException(Strings.Get("AppServerInitializationFailed"));
         _logger.Info($"Codex app-server initialized in {elapsed.ElapsedMilliseconds} ms.");
     }
 
     private async Task<JsonElement> RequestAsync(string method, object? parameters, CancellationToken cancellationToken)
     {
-        var process = _process ?? throw new InvalidOperationException("Codex app-server 尚未启动。");
-        if (process.HasExited) throw new InvalidOperationException($"Codex app-server 已提前退出（退出码 {process.ExitCode}）。");
+        var process = _process ?? throw new InvalidOperationException(Strings.Get("AppServerNotStarted"));
+        if (process.HasExited) throw new InvalidOperationException(Strings.Format("AppServerExited", process.ExitCode));
         var id = Interlocked.Increment(ref _nextId);
         var elapsed = Stopwatch.StartNew();
         _logger.Info($"RPC send: id={id}, method={method}.");
@@ -111,9 +112,9 @@ public sealed class CodexAppServerRateLimitProvider : IRateLimitProvider, IAsync
         }
         catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
         {
-            throw new TimeoutException($"等待 Codex app-server 对 {method} 的响应超时（15 秒）。");
+            throw new TimeoutException(Strings.Format("AppServerTimeout", method));
         }
-        throw new InvalidOperationException("Codex app-server 已提前退出。");
+        throw new InvalidOperationException(Strings.Get("AppServerExitedWithoutCode"));
     }
 
     public async ValueTask DisposeAsync()

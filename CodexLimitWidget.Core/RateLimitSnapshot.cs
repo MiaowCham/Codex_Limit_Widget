@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json;
+using CodexLimitWidget.Core.Resources;
 
 namespace CodexLimitWidget.Core;
 
@@ -9,11 +10,11 @@ public sealed record RateLimitWindow(int? UsedPercent, int? WindowDurationMins, 
 
     public string FormatResetCountdown()
     {
-        if (ResetsAt is null or <= 0) return "未知";
+        if (ResetsAt is null or <= 0) return Strings.Unknown;
         var delta = DateTimeOffset.FromUnixTimeSeconds(ResetsAt.Value) - DateTimeOffset.Now;
-        if (delta <= TimeSpan.Zero) return "已到期";
+        if (delta <= TimeSpan.Zero) return Strings.Expired;
         var minutes = (int)Math.Floor(delta.TotalMinutes);
-        return minutes >= 60 ? $"{minutes / 60}小时{minutes % 60}分钟" : $"{minutes}分钟";
+        return minutes >= 60 ? Strings.Format("DurationHoursMinutes", minutes / 60, minutes % 60) : Strings.Format("DurationMinutes", minutes);
     }
 }
 
@@ -25,13 +26,13 @@ public sealed record RateLimitSnapshot(string LimitId, string? LimitName, string
 
     public static RateLimitSnapshot FromJson(JsonElement result)
     {
-        if (result.ValueKind != JsonValueKind.Object) throw new InvalidOperationException("app-server 返回的限额响应不是对象。");
+        if (result.ValueKind != JsonValueKind.Object) throw new InvalidOperationException(Strings.Get("RateLimitResponseNotObject"));
         JsonElement snapshot;
         if (result.TryGetProperty("rateLimitsByLimitId", out var byId) && byId.ValueKind == JsonValueKind.Object && byId.TryGetProperty("codex", out var codex)) snapshot = codex;
         else if (result.TryGetProperty("rateLimits", out var limits) && limits.ValueKind == JsonValueKind.Object) snapshot = limits;
-        else throw new InvalidOperationException("app-server 没有返回 codex 限额桶。");
+        else throw new InvalidOperationException(Strings.Get("RateLimitBucketMissing"));
 
-        if (snapshot.ValueKind != JsonValueKind.Object) throw new InvalidOperationException("app-server 返回的 codex 限额桶格式无效。");
+        if (snapshot.ValueKind != JsonValueKind.Object) throw new InvalidOperationException(Strings.Get("RateLimitBucketInvalid"));
         var primary = snapshot.TryGetProperty("primary", out var primaryJson) ? ReadWindow(primaryJson) : RateLimitWindow.Empty;
         var secondary = snapshot.TryGetProperty("secondary", out var secondaryJson) ? ReadWindow(secondaryJson) : RateLimitWindow.Empty;
         CreditsSnapshot? credits = null;
@@ -44,12 +45,13 @@ public sealed record RateLimitSnapshot(string LimitId, string? LimitName, string
 
     public string FormatMultiline()
     {
-        var sb = new StringBuilder($"计划: {PlanType ?? "unknown"}\n限额ID: {LimitId}");
-        if (Primary.UsedPercent is not null) sb.Append($"\n主窗口: 已用 {Primary.UsedPercent}% / 剩余 {RemainingPercent}%\n主窗口重置: {Primary.FormatResetCountdown()}");
-        if (Secondary.UsedPercent is not null) sb.Append($"\n次窗口: 已用 {Secondary.UsedPercent}%\n次窗口重置: {Secondary.FormatResetCountdown()}");
-        if (Credits is not null) sb.Append($"\nCredits: {(Credits.Unlimited ? "无限" : Credits.Balance ?? "0")}");
-        if (RateLimitReachedType is not null) sb.Append($"\n状态: {RateLimitReachedType}");
-        if (RateLimitResetCredits is not null) sb.Append($"\n可用重置额度: {RateLimitResetCredits}");
+        var sb = new StringBuilder(Strings.Format("StatusPlan", PlanType ?? "unknown"));
+        sb.AppendLine().Append(Strings.Format("StatusLimitId", LimitId));
+        if (Primary.UsedPercent is not null) sb.AppendLine().Append(Strings.Format("StatusPrimaryUsage", Primary.UsedPercent, RemainingPercent)).AppendLine().Append(Strings.Format("StatusPrimaryReset", Primary.FormatResetCountdown()));
+        if (Secondary.UsedPercent is not null) sb.AppendLine().Append(Strings.Format("StatusSecondaryUsage", Secondary.UsedPercent)).AppendLine().Append(Strings.Format("StatusSecondaryReset", Secondary.FormatResetCountdown()));
+        if (Credits is not null) sb.AppendLine().Append(Strings.Format("StatusCredits", Credits.Unlimited ? Strings.Get("Unlimited") : Credits.Balance ?? "0"));
+        if (RateLimitReachedType is not null) sb.AppendLine().Append(Strings.Format("StatusReached", RateLimitReachedType));
+        if (RateLimitResetCredits is not null) sb.AppendLine().Append(Strings.Format("StatusResetCredits", RateLimitResetCredits));
         return sb.ToString();
     }
 

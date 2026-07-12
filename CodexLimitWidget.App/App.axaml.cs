@@ -4,6 +4,7 @@ using Avalonia.Markup.Xaml;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using System.Diagnostics;
+using CodexLimitWidget.Core.Resources;
 
 namespace CodexLimitWidget.App;
 public partial class App : Application
@@ -19,12 +20,12 @@ public partial class App : Application
     private void ToggleWindow_Click(object? sender, EventArgs e)
     {
         var visible = MainWindow?.ToggleVisibilityFromTray() ?? false;
-        if (sender is NativeMenuItem item) item.Header = visible ? "隐藏窗口" : "显示窗口";
+        if (sender is NativeMenuItem item) item.Header = visible ? Strings.TrayHideWindow : Strings.Get("TrayShowWindow");
     }
     private void ToggleTopmost_Click(object? sender, EventArgs e)
     {
         var topmost = MainWindow?.ToggleTopmostFromTray() ?? false;
-        if (sender is NativeMenuItem item) item.Header = topmost ? "取消置顶" : "启用置顶";
+        if (sender is NativeMenuItem item) item.Header = topmost ? Strings.TooltipDisableTopmost : Strings.TooltipEnableTopmost;
     }
     private void Refresh_Click(object? sender, EventArgs e) => MainWindow?.QueueRefreshFromTray();
     private void OpenRepository_Click(object? sender, EventArgs e)

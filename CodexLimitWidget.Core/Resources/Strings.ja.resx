@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="Unknown" xml:space="preserve"><value>不明</value></data>
+  <data name="Expired" xml:space="preserve"><value>期限切れ</value></data>
+  <data name="DurationMinutes" xml:space="preserve"><value>{0}分</value></data>
+  <data name="DurationHoursMinutes" xml:space="preserve"><value>{0}時間{1}分</value></data>
+  <data name="RateLimitResponseNotObject" xml:space="preserve"><value>app-server の制限応答が不正です。</value></data>
+  <data name="RateLimitBucketMissing" xml:space="preserve"><value>codex 制限バケットがありません。</value></data>
+  <data name="RateLimitBucketInvalid" xml:space="preserve"><value>codex 制限バケットが不正です。</value></data>
+  <data name="StatusPlan" xml:space="preserve"><value>プラン: {0}</value></data>
+  <data name="StatusLimitId" xml:space="preserve"><value>制限 ID: {0}</value></data>
+  <data name="StatusPrimaryUsage" xml:space="preserve"><value>メイン: 使用 {0}% / 残り {1}%</value></data>
+  <data name="StatusPrimaryReset" xml:space="preserve"><value>メインのリセット: {0}</value></data>
+  <data name="StatusSecondaryUsage" xml:space="preserve"><value>週: 使用 {0}%</value></data>
+  <data name="StatusSecondaryReset" xml:space="preserve"><value>週のリセット: {0}</value></data>
+  <data name="StatusCredits" xml:space="preserve"><value>Credits: {0}</value></data>
+  <data name="StatusReached" xml:space="preserve"><value>状態: {0}</value></data>
+  <data name="StatusResetCredits" xml:space="preserve"><value>リセット枠: {0}</value></data>
+  <data name="Unlimited" xml:space="preserve"><value>無制限</value></data>
+  <data name="ReadFailed" xml:space="preserve"><value>読込失敗: {0}</value></data>
+  <data name="CliHelp" xml:space="preserve"><value>CodexLimitWidget {0}
+
+使い方:
+  CodexLimitWidget.Cli status [--language &lt;culture&gt;]
+  CodexLimitWidget.Cli watch [--interval &lt;seconds&gt;] [--language &lt;culture&gt;]</value></data>
+  <data name="InvalidInterval" xml:space="preserve"><value>--interval は 1～86400 秒です。</value></data>
+  <data name="InvalidLanguage" xml:space="preserve"><value>無効な言語カルチャ: {0}</value></data>
+  <data name="AppServerStartFailed" xml:space="preserve"><value>Codex app-server を起動できません。</value></data>
+  <data name="CodexCliNotFound" xml:space="preserve"><value>Codex CLI が見つからないか起動できません。`codex` が PATH にあるか確認してください。</value></data>
+  <data name="ReadLimitFailed" xml:space="preserve"><value>制限の読込失敗: {0}</value></data>
+  <data name="AppServerResultMissing" xml:space="preserve"><value>app-server 応答に result がありません。</value></data>
+  <data name="AppServerInitializationFailed" xml:space="preserve"><value>Codex app-server の初期化に失敗しました。</value></data>
+  <data name="AppServerNotStarted" xml:space="preserve"><value>Codex app-server は未起動です。</value></data>
+  <data name="AppServerExited" xml:space="preserve"><value>Codex app-server が終了しました（コード {0}）。</value></data>
+  <data name="AppServerExitedWithoutCode" xml:space="preserve"><value>Codex app-server が終了しました。</value></data>
+  <data name="AppServerTimeout" xml:space="preserve"><value>Codex app-server の {0} が 15 秒でタイムアウトしました。</value></data>
+  <data name="Loading" xml:space="preserve"><value>読込中…</value></data>
+  <data name="Refreshing" xml:space="preserve"><value>更新中…</value></data>
+  <data name="RefreshFailed" xml:space="preserve"><value>更新失敗</value></data>
+  <data name="RemainingPercent" xml:space="preserve"><value>残り {0}%</value></data>
+  <data name="LimitUnknown" xml:space="preserve"><value>制限不明</value></data>
+  <data name="Plan" xml:space="preserve"><value>PLAN {0}</value></data>
+  <data name="ResetAt" xml:space="preserve"><value>{0} にリセット</value></data>
+  <data name="WeeklyLimit" xml:space="preserve"><value>週 {0}% · {1}</value></data>
+  <data name="Details" xml:space="preserve"><value>Credits {0} | リセット枠 {1}</value></data>
+  <data name="UpdatedAt" xml:space="preserve"><value>{0} 更新</value></data>
+  <data name="ReadFailure" xml:space="preserve"><value>読込失敗</value></data>
+  <data name="CodexCliMissing" xml:space="preserve"><value>Codex CLI がありません</value></data>
+  <data name="InstallCodexCli" xml:space="preserve"><value>Codex CLI をインストールしてください</value></data>
+  <data name="LinuxIdeCliNote" xml:space="preserve"><value>Linux IDE 拡張は CLI を提供しません</value></data>
+  <data name="ResetTimeWithDateFormat" xml:space="preserve"><value>M/d HH:mm</value></data>
+  <data name="ResetTimeFormat" xml:space="preserve"><value>HH:mm</value></data>
+  <data name="TooltipPrimaryUsage" xml:space="preserve"><value>メインの使用率</value></data>
+  <data name="TooltipDisableTopmost" xml:space="preserve"><value>常に手前を解除</value></data>
+  <data name="TooltipEnableTopmost" xml:space="preserve"><value>常に手前に表示</value></data>
+  <data name="TooltipRefresh" xml:space="preserve"><value>更新</value></data>
+  <data name="TooltipClose" xml:space="preserve"><value>閉じる</value></data>
+  <data name="TooltipUsageColors" xml:space="preserve"><value>緑: 安全、橙: 上限付近、赤: 危険</value></data>
+  <data name="TrayHideWindow" xml:space="preserve"><value>ウィンドウを隠す</value></data>
+  <data name="TrayShowWindow" xml:space="preserve"><value>ウィンドウを表示</value></data>
+  <data name="TrayRefresh" xml:space="preserve"><value>更新</value></data>
+  <data name="TrayVersion" xml:space="preserve"><value>バージョン {0}</value></data>
+  <data name="TrayExit" xml:space="preserve"><value>終了</value></data>
+</root>

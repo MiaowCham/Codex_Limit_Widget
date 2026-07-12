@@ -1,16 +1,16 @@
-<Application xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Class="CodexLimitWidget.App.App">
+<Application xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:resources="using:CodexLimitWidget.Core.Resources" xmlns:app="using:CodexLimitWidget.App" x:Class="CodexLimitWidget.App.App">
   <Application.Styles><FluentTheme /></Application.Styles>
   <TrayIcon.Icons>
     <TrayIcons>
       <TrayIcon Icon="/Assets/icon.ico" ToolTipText="Codex Limit Widget">
         <TrayIcon.Menu>
           <NativeMenu>
-            <NativeMenuItem Header="隐藏窗口" Click="ToggleWindow_Click"/>
-            <NativeMenuItem Header="取消置顶" Click="ToggleTopmost_Click"/>
-            <NativeMenuItem Header="刷新" Click="Refresh_Click"/>
+            <NativeMenuItem Header="{x:Static resources:Strings.TrayHideWindow}" Click="ToggleWindow_Click"/>
+            <NativeMenuItem Header="{x:Static resources:Strings.TooltipDisableTopmost}" Click="ToggleTopmost_Click"/>
+            <NativeMenuItem Header="{x:Static resources:Strings.TrayRefresh}" Click="Refresh_Click"/>
             <NativeMenuItemSeparator/>
-            <NativeMenuItem Header="版本 0.2.3" Click="OpenRepository_Click"/>
-            <NativeMenuItem Header="退出" Click="Exit_Click"/>
+            <NativeMenuItem Header="{x:Static app:LocalizedStrings.VersionMenuHeader}" Click="OpenRepository_Click"/>
+            <NativeMenuItem Header="{x:Static resources:Strings.TrayExit}" Click="Exit_Click"/>
           </NativeMenu>
         </TrayIcon.Menu>
       </TrayIcon>

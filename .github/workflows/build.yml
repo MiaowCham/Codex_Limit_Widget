@@ -11,7 +11,7 @@ on:
       version:
         description: "打包版本号（x.y.z；可选 v 前缀）"
         required: true
-        default: "0.2.3"
+        default: "0.2.4"
         type: string
 
 jobs:
@@ -43,6 +43,9 @@ jobs:
           dotnet-version: "10.0.x"
       - name: Install Inno Setup
         run: choco install innosetup -y --no-progress
+      - name: Download Inno Setup translations
+        shell: pwsh
+        run: ./installer/download-inno-languages.ps1
       - name: Build self-contained installer
         shell: pwsh
         run: |
