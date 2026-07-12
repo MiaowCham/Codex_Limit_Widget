@@ -16,8 +16,7 @@
 </div>
 
 > [!NOTE]
-> 本项目使用 AI 辅助开发。  
-> This project is developed with AI assistance.
+> 本项目由 Codex 提供支持
 
 ## 功能
 

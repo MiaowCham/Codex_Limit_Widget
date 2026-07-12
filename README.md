@@ -16,7 +16,7 @@ A lightweight cross-platform desktop widget for viewing Codex usage and reset ti
 </div>
 
 > [!NOTE]
-> This project is developed with AI assistance.
+> This project is Powered by Codex
 
 ## Features
 
