@@ -49,7 +49,7 @@ package="$root/dist/codex-limit-widget_${version}_${deb_arch}"
 rm -rf "$stage" "$package" "$package.deb"
 
 dotnet publish "$project" -c Release -f "$framework" -r "$rid" --self-contained true \
-  -p:PublishSingleFile=true -p:Version="$version" -o "$stage"
+  -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:Version="$version" -o "$stage"
 echo "二进制已生成：$stage/CodexLimitWidget.App"
 
 if [[ "$output_choice" != 1 ]]; then

@@ -67,11 +67,14 @@ jobs:
           dotnet-version: "10.0.x"
       - name: Build binary and Debian package
         run: printf '1\n1\n3\n%s\n' "${PACKAGE_VERSION#v}" | bash installer/build-linux.sh
+      - name: Archive standalone binary with Unix permissions
+        run: |
+          tar -C publish/linux-x64/app -czf dist/CodexLimitWidget-linux-x64.tar.gz CodexLimitWidget.App
       - uses: actions/upload-artifact@v4
         with:
           name: CodexLimitWidget-linux-x64
           path: |
-            publish/linux-x64/app/CodexLimitWidget.App
+            dist/CodexLimitWidget-linux-x64.tar.gz
             dist/*.deb
           if-no-files-found: error
 
@@ -98,6 +101,7 @@ jobs:
         run: printf '1\n%s\n2\n%s\n' "${{ matrix.architecture_choice }}" "${PACKAGE_VERSION#v}" | bash installer/build-macos.sh
       - uses: actions/upload-artifact@v4
         with:
-          name: "CodexLimitWidget-${{ matrix.rid }}-app"
-          path: dist/*.app
+          name: "CodexLimitWidget-${{ matrix.rid }}-zip"
+          # A ZIP created by ditto retains the executable mode inside the app bundle.
+          path: dist/*.zip
           if-no-files-found: error

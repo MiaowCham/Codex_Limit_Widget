@@ -114,7 +114,7 @@ bash installer/build-linux.sh
 bash installer/build-macos.sh
 ```
 
-.NET 10 构建以 macOS 14 及以上版本为正式目标；脚本同时提供面向 macOS 12 的 .NET 8 实验性兼容构建。生成应用包需要项目根目录中的 `CodexLimitWidget.icns` 和系统自带的 `codesign`。
+.NET 10 为默认构建目标，脚本同时提供 .NET 8 兼容构建。应用包不在 `Info.plist` 中声明最低 macOS 版本；生成应用包需要项目根目录中的 `CodexLimitWidget.icns` 和系统自带的 `codesign`。
 
 ## 日志
 

@@ -17,6 +17,8 @@ build_one() {
   rm -rf "$stage"
   dotnet publish "$project" -c Release -f "$framework" -r "$rid" --self-contained true \
     -p:PublishSingleFile=true -p:Version="$version" -o "$stage" >&2
+  # Debug symbols are not part of the distributable application bundle.
+  find "$stage" -type f -name '*.pdb' -delete
   printf '%s' "$stage"
 }
 
@@ -24,7 +26,6 @@ create_app() {
   local source="$1"
   local name="$2"
   local version="$3"
-  local minimum_system="$4"
   local app="$root/dist/$name.app"
   rm -rf "$app"
   install -d "$app/Contents/MacOS" "$app/Contents/Resources"
@@ -47,7 +48,6 @@ create_app() {
   <key>CFBundleShortVersionString</key><string>$version</string>
   <key>CFBundleVersion</key><string>$version</string>
   <key>LSUIElement</key><true/>
-  <key>LSMinimumSystemVersion</key><string>$minimum_system</string>
 </dict></plist>
 EOF
   codesign --force --deep --sign - "$app"
@@ -56,12 +56,12 @@ EOF
 
 echo 'Codex Limit Widget — macOS 构建器'
 echo '选择目标 .NET：'
-echo '  1) net10.0（默认；正式版本，macOS 14+）'
-echo '  2) net8.0（macOS 12 实验性兼容版本）'
+echo '  1) net10.0（默认）'
+echo '  2) net8.0（兼容构建）'
 framework_choice="$(choose '输入 1/2' 1)"
 case "$framework_choice" in
-  1) framework=net10.0; minimum_system=14.0 ;;
-  2) framework=net8.0; minimum_system=12.0 ;;
+  1) framework=net10.0 ;;
+  2) framework=net8.0 ;;
   *) echo '无效的框架选择。' >&2; exit 2 ;;
 esac
 
@@ -87,7 +87,7 @@ mkdir -p "$root/dist"
 build_and_package() {
   local rid="$1" label="$2" stage
   stage="$(build_one "$framework" "$rid" "$version")"
-  create_app "$stage" "CodexLimitWidget-${version}-${label}" "$version" "$minimum_system"
+  create_app "$stage" "CodexLimitWidget-${version}-${label}" "$version"
   if [[ "$output_choice" == 2 ]]; then
     ditto -c -k --sequesterRsrc --keepParent "$root/dist/CodexLimitWidget-${version}-${label}.app" "$root/dist/CodexLimitWidget-${version}-${label}.zip"
     echo "ZIP 已生成：$root/dist/CodexLimitWidget-${version}-${label}.zip"

@@ -60,10 +60,8 @@ public partial class MainWindow : Window
     private void Close_Click(object? sender, RoutedEventArgs e) => Close();
     private void Surface_PointerPressed(object? sender, PointerPressedEventArgs e)
     {
-        var point = e.GetPosition(this);
         var isButton = IsButtonSource(e.Source);
         var leftPressed = e.GetCurrentPoint(this).Properties.IsLeftButtonPressed;
-        _logger.Info($"Drag pointer pressed; position={point.X:F1},{point.Y:F1}; left={leftPressed}; buttonSource={isButton}.");
         if (!isButton && leftPressed)
         {
             if (OperatingSystem.IsWindows())
@@ -71,20 +69,16 @@ public partial class MainWindow : Window
                 var handle = TryGetPlatformHandle()?.Handle ?? IntPtr.Zero;
                 if (handle == IntPtr.Zero)
                 {
-                    _logger.Info("Native Windows drag unavailable because the platform handle is missing; using Avalonia fallback.");
                     BeginMoveDrag(e);
                 }
                 else
                 {
-                    _logger.Info($"Native Windows drag started; hwnd=0x{handle.ToInt64():X}; window={Position.X},{Position.Y}.");
                     ReleaseCapture();
                     SendMessage(handle, WmNcLeftButtonDown, HtCaption, IntPtr.Zero);
-                    _logger.Info($"Native Windows drag ended; window={Position.X},{Position.Y}.");
                 }
             }
             else
             {
-                _logger.Info("Avalonia native drag started for non-Windows platform.");
                 BeginMoveDrag(e);
             }
             e.Handled = true;
