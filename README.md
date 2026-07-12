@@ -1,14 +1,14 @@
 <div align="center">
 <img src="icon.png" width="20%" alt="icon" style="margin-bottom: -20px;"/>
 
-# Codex Limit Widget
+# Codex Limit Widget Dev
 [![MIT](https://img.shields.io/badge/License-Apache%202.0-orange.svg)](https://github.com/MiaowCham/Codex_Limit_Widget/blob/main/LICENSE)
 [![Static Badge](https://img.shields.io/badge/Languages-C%23-blue.svg)](https://github.com/search?q=repo%3AMiaowCham%2FCodex_Limit_Widget++language%3AC%23&type=code)
 [![Github Release](https://img.shields.io/github/v/release/MiaowCham/Codex_Limit_Widget)](https://github.com/MiaowCham/Codex_Limit_Widget/releases)
 [![GitHub Actions](https://img.shields.io/github/actions/workflow/status/MiaowCham/Codex_Limit_Widget/.github/workflows/build.yml)](https://github.com/MiaowCham/Codex_Limit_Widget/actions/workflows/build.yml)
 [![GitHub last commit](https://img.shields.io/github/last-commit/MiaowCham/Codex_Limit_Widget)](https://github.com/MiaowCham/Codex_Limit_Widget/commits/main)
 
-一个轻量的 Codex 限额查看小组件
+一个轻量的 Codex 限额查看小组件，**跨平台测试版**
 
 </div>
 
@@ -16,11 +16,24 @@
 >本项目使用AI生成。  
 >This project uses AI generation.
 
+## TODO
+
+- [ ] 确认各系统构建版本运行情况
+  - [x] Windows
+  - [x] Linux (WSL2)
+  - [ ] macOS
+- [ ] 构建 Linux、macOS 软件包
+- [ ] 适配 Inno Setup 打包
+- [ ] 适配各系统托盘图标
+- [ ] 增加全平台 CI 构建流程
+
 ## 依赖与当前限制
 
-跨平台版本使用 .NET 10 + Avalonia 12，并要求 `codex` CLI 可通过 `PATH` 找到。IDE 插件不会自动提供 `codex` CLI；Linux/macOS 用户需要单独安装 CLI。
+跨平台版本使用 .NET 10 + Avalonia 12，并要求 `codex` CLI 可通过 `PATH` 找到。  
+IDE 插件不会自动提供 `codex` CLI；Linux/macOS 用户需要单独安装 CLI。
 
-当前迁移状态：Windows、Linux、macOS 均可生成 RID 产物，但 Linux/macOS 尚未组装原生安装包或 `.app`，需要手动运行二进制文件。现有 Inno Setup 脚本只适用于旧版 Windows/WinForms 项目，尚未适配 Avalonia 跨平台版本。
+当前迁移状态：Windows、Linux、macOS 均可生成 RID 产物，但 Linux/macOS 尚未组装原生安装包或 `.app`，需要手动运行二进制文件。  
+现有 Inno Setup 脚本只适用于旧版 Windows/WinForms 项目，尚未适配 Avalonia 跨平台版本。
 
 ### 安装 .NET 10
 
@@ -52,7 +65,8 @@ brew install --cask dotnet-sdk
 
 ### 使用构建版
 
-前往 Release 页或 CI 构建中获取安装包，安装后使用。
+~~前往 Release 页或 CI 构建中获取安装包，安装后使用。~~  
+跨平台版暂未打包和提供软件包，请直接直接 dotnet 运行，或自行构建二进制文件。
 
 ### 终端查看
 
