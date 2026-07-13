@@ -101,13 +101,8 @@ switch ($Choice) {
     '2' { Publish-App (Join-Path $repoRoot 'publish\release') $false }
     '3' { Publish-App (Join-Path $repoRoot 'publish\single-file') $true }
     '4' {
-        # The Inno Setup scripts consume this directory and recursively include
-        # culture-specific satellite assemblies when present.
-        Publish-App (Join-Path $repoRoot 'publish\win-x64\app') $false
-        & (Join-Path $PSScriptRoot 'download-inno-languages.ps1')
-        $iscc = Resolve-Iscc
-        & $iscc "/DMyAppVersion=$Version" "/DMyAppProductVersion=$ProductVersion" (Join-Path $PSScriptRoot 'CodexLimitWidget.iss')
-        if ($LASTEXITCODE -ne 0) { throw "ISCC 构建失败，退出码 $LASTEXITCODE。" }
+        & (Join-Path $PSScriptRoot 'build-windows.ps1') -Version $Version -InformationalVersion $InformationalVersion
+        if ($LASTEXITCODE -ne 0) { throw "Windows 双安装包构建失败，退出码 $LASTEXITCODE。" }
         Write-Host "安装包已生成到: $(Join-Path $repoRoot 'dist')" -ForegroundColor Green
     }
 }

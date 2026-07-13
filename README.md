@@ -45,7 +45,8 @@ IDE extensions do not usually include a standalone Codex CLI. Install it separat
 
 Download an installer or build artifact from [Releases](https://github.com/MiaowCham/Codex_Limit_Widget/releases) or GitHub Actions:
 
-- Windows x64: Inno Setup installer
+- Windows x64 Slim installer: smaller framework-dependent package; requires .NET 10 x64 Runtime
+- Windows x64 Full installer: self-contained package; no separate .NET installation required
 - Linux x64: self-contained executable and DEB package
 - macOS: ad-hoc-signed `.app` bundles for Apple Silicon and Intel
 
@@ -100,7 +101,7 @@ dotnet publish CodexLimitWidget.App/CodexLimitWidget.App.csproj `
   -p:PublishSingleFile=true -o publish/win-x64/app
 ```
 
-To create the Inno Setup installer, install Inno Setup 6 and run:
+To create both Windows installers, install Inno Setup 6 and run:
 
 ```powershell
 ./installer/build-windows.ps1 -Version 1.0.0
@@ -109,6 +110,11 @@ To create the Inno Setup installer, install Inno Setup 6 and run:
 Version inputs accept `x.y.z`, `x.y.z.w`, and either form with an alphanumeric suffix such as `1.2.3-preview` or `1.2.3.4-preview`. The complete input is stored as `InformationalVersion`; Assembly/File and installer resource versions use the numeric part before `-`, with `.0` appended to three-part versions. CI builds append another `-` plus the seven-character commit hash to `InformationalVersion` only. .NET exposes the informational value as the Windows PE `ProductVersion`; the strictly numeric values remain available as Assembly/File versions and the installer `VersionInfoVersion`.
 
 The script downloads the official Simplified Chinese, Traditional Chinese, and Japanese Inno Setup translations. The installer also includes English.
+
+The two installers are alternative installation media for the same application and share one installation directory and uninstall entry. Installing one replaces the other:
+
+- `CodexLimitWidget-<version>-Windows-x64-Slim-Setup.exe` is smaller and requires the matching .NET x64 Runtime.
+- `CodexLimitWidget-<version>-Windows-x64-Full-Setup.exe` includes the runtime and works without a separate .NET installation.
 
 ### Linux
 
@@ -141,7 +147,7 @@ bash installer/build-macos.sh
 
 GitHub Actions performs Release builds and tests on Windows, Ubuntu, and macOS. A `v*` tag or a manually triggered workflow also creates:
 
-- Windows x64 installer
+- Windows x64 Slim and Full installers
 - Linux x64 self-contained binary and DEB package
 - macOS Apple Silicon and Intel `.app` bundles
 
