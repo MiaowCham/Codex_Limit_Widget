@@ -1,6 +1,6 @@
 #define MyAppName "Codex Limit Widget"
 #ifndef MyAppVersion
-  #define MyAppVersion "0.2.6"
+  #define MyAppVersion "1.0.0"
 #endif
 #define MyAppPublisher "CodexLimitWidget Contributors"
 #define MyAppExeName "CodexLimitWidget.App.exe"

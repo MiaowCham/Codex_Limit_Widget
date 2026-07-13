@@ -103,7 +103,7 @@ dotnet publish CodexLimitWidget.App/CodexLimitWidget.App.csproj `
 生成 Inno Setup 安装程序需要安装 Inno Setup 6：
 
 ```powershell
-./installer/build-windows.ps1 -Version 0.2.2
+./installer/build-windows.ps1 -Version 1.0.0
 ```
 
 ### Linux

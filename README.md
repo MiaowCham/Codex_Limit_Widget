@@ -103,7 +103,7 @@ dotnet publish CodexLimitWidget.App/CodexLimitWidget.App.csproj `
 To create the Inno Setup installer, install Inno Setup 6 and run:
 
 ```powershell
-./installer/build-windows.ps1 -Version 0.2.4
+./installer/build-windows.ps1 -Version 1.0.0
 ```
 
 The script downloads the official Simplified Chinese, Traditional Chinese, and Japanese Inno Setup translations. The installer also includes English.

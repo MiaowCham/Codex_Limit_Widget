@@ -22,6 +22,9 @@ $replacements = @(
         @{ Find = '<FileVersion>[^<]+</FileVersion>'; Replace = "<FileVersion>$ProductVersion</FileVersion>" },
         @{ Find = '<InformationalVersion>[^<]+</InformationalVersion>'; Replace = "<InformationalVersion>$ProductVersion</InformationalVersion>" }) },
     @{ Path = 'installer/CodexLimitWidget.iss'; Patterns = @(@{ Find = '(?m)^\s*#define MyAppVersion "[^"]+"'; Replace = "  #define MyAppVersion `"$Version`"" }) },
+    @{ Path = 'installer/build-windows.ps1'; Patterns = @(@{ Find = '(?m)^(param\(\[string\]\$Version = )"[^"]+"'; Replace = "`$1`"$Version`"" }) },
+    @{ Path = 'README.md'; Patterns = @(@{ Find = '(?m)^(\./installer/build-windows\.ps1 -Version )\d+\.\d+\.\d+'; Replace = "`$1$Version" }) },
+    @{ Path = 'README-CN.md'; Patterns = @(@{ Find = '(?m)^(\./installer/build-windows\.ps1 -Version )\d+\.\d+\.\d+'; Replace = "`$1$Version" }) },
     @{ Path = '.github/workflows/build.yml'; Patterns = @(@{ Find = '(?m)^(\s*default:) "[^"]+"'; Replace = "`$1 `"$Version`"" }) }
 )
 
