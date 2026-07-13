@@ -23,8 +23,6 @@ $replacements = @(
     @{ Path = 'installer/CodexLimitWidget.iss'; Patterns = @(
         @{ Find = '(?m)^\s*#define MyAppVersion "[^"]+"'; Replace = "  #define MyAppVersion `"$Version`"" },
         @{ Find = '(?m)^\s*#define MyAppProductVersion "[^"]+"'; Replace = "  #define MyAppProductVersion `"$ProductVersion`"" }) },
-    @{ Path = 'README.md'; Patterns = @(@{ Find = '(?m)^(\./installer/build\.ps1 -Package Both -Version )\S+'; Replace = "`$1$Version" }) },
-    @{ Path = 'README-CN.md'; Patterns = @(@{ Find = '(?m)^(\./installer/build\.ps1 -Package Both -Version )\S+'; Replace = "`$1$Version" }) },
     @{ Path = '.github/workflows/build.yml'; Patterns = @(@{ Find = '(?m)^(\s*default:) "[^"]+"'; Replace = "`$1 `"$Version`"" }) }
 )
 
