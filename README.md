@@ -103,8 +103,10 @@ dotnet publish CodexLimitWidget.App/CodexLimitWidget.App.csproj `
 To create the Inno Setup installer, install Inno Setup 6 and run:
 
 ```powershell
-./installer/build-windows.ps1 -Version 0.2.4
+./installer/build-windows.ps1 -Version 1.0.0
 ```
+
+Version inputs accept `x.y.z`, `x.y.z.w`, and either form with an alphanumeric suffix such as `1.2.3-preview` or `1.2.3.4-preview`. The complete input is stored as `InformationalVersion`; Assembly/File and installer resource versions use the numeric part before `-`, with `.0` appended to three-part versions. CI builds append another `-` plus the seven-character commit hash to `InformationalVersion` only. .NET exposes the informational value as the Windows PE `ProductVersion`; the strictly numeric values remain available as Assembly/File versions and the installer `VersionInfoVersion`.
 
 The script downloads the official Simplified Chinese, Traditional Chinese, and Japanese Inno Setup translations. The installer also includes English.
 
@@ -126,7 +128,7 @@ The interactive script supports Apple Silicon/Intel, .NET 10/.NET 8, and can cre
 bash installer/build-macos.sh
 ```
 
-.NET 10 is the default target; the script also provides a .NET 8 compatibility build. The application bundle does not declare a minimum macOS version in `Info.plist`; building requires `CodexLimitWidget.icns` in the repository root and the system `codesign` command.
+.NET 10 is the default target; the script also provides a .NET 8 compatibility build. The application bundle does not declare a minimum macOS version in `Info.plist`; building requires `CodexLimitWidget.icns` in the repository root and the system `codesign` command. Apple's bundle version fields remain three-part numeric values, while the full informational version is stored in `CFBundleGetInfoString` and `CodexInformationalVersion`.
 
 ## Logs
 

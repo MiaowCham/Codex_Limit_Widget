@@ -1,14 +1,13 @@
 using Avalonia;
 using CodexLimitWidget.Core;
 using CodexLimitWidget.Core.Resources;
-using System.Reflection;
 
 namespace CodexLimitWidget.App;
 
 internal static class Program
 {
     public static int RefreshIntervalSeconds { get; private set; } = 60;
-    public static string ApplicationVersion { get; } = typeof(Program).Assembly.GetName().Version?.ToString(3) ?? Strings.Unknown;
+    public static string ApplicationVersion { get; } = Core.ApplicationVersion.FromAssembly(typeof(Program).Assembly);
     public static FileAppLogger Logger { get; } = new();
     [STAThread]
     public static int Main(string[] args)

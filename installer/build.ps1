@@ -1,28 +1,26 @@
 param(
     [ValidateSet('1', '2', '3', '4')]
     [string]$Choice,
-    [string]$Version
+    [string]$Version,
+    [string]$InformationalVersion
 )
 
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot 'Versioning.ps1')
 
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 $projectPath = Join-Path $repoRoot 'CodexLimitWidget.App\CodexLimitWidget.App.csproj'
-$versionPropsPath = Join-Path $repoRoot 'Directory.Build.props'
 
 if (-not $Version) {
-    $xml = [xml](Get-Content -Raw -LiteralPath $projectPath)
-    $Version = @($xml.Project.PropertyGroup.Version | Where-Object { $_ })[0]
-    if (-not $Version) {
-        $versionProps = [xml](Get-Content -Raw -LiteralPath $versionPropsPath)
-        $Version = @($versionProps.Project.PropertyGroup.Version | Where-Object { $_ })[0]
-    }
+    $stored = Get-CodexStoredVersion -RepositoryRoot $repoRoot
+    $Version = $stored.Version
+    if (-not $InformationalVersion) { $InformationalVersion = $stored.InformationalVersion }
 }
-if (-not $Version) { throw '无法从项目文件读取版本号。' }
-$Version = $Version -replace '^v', ''
-if ($Version -notmatch '^\d+\.\d+\.\d+$') { throw "版本号必须使用 x.y.z 格式: $Version" }
-$BinaryVersion = "$Version.0"
-Write-Host "使用版本号: $Version（产品版本 $BinaryVersion）" -ForegroundColor DarkCyan
+$resolved = Resolve-CodexVersion -Version $Version -InformationalVersion $InformationalVersion
+$Version = $resolved.Version
+$ProductVersion = $resolved.ProductVersion
+$InformationalVersion = $resolved.InformationalVersion
+Write-Host "使用版本号: $Version（InformationalVersion $InformationalVersion；产品版本 $ProductVersion）" -ForegroundColor DarkCyan
 
 if (-not $Choice) {
     Write-Host '请选择构建类型:' -ForegroundColor Cyan
@@ -48,8 +46,8 @@ function Publish-App([string]$OutputDirectory, [bool]$SingleFile) {
             -p:BaseOutputPath="$isolatedBuildOutput\" `
             -p:PublishSingleFile=$($SingleFile.ToString().ToLowerInvariant()) `
             -p:DebugType=None -p:DebugSymbols=false `
-            -p:Version=$Version -p:InformationalVersion=$BinaryVersion `
-            -p:AssemblyVersion=$BinaryVersion -p:FileVersion=$BinaryVersion `
+            -p:Version=$Version -p:InformationalVersion=$InformationalVersion `
+            -p:AssemblyVersion=$ProductVersion -p:FileVersion=$ProductVersion `
             -o $OutputDirectory
         if ($LASTEXITCODE -ne 0) { throw "dotnet publish 失败，退出码 $LASTEXITCODE。" }
 
@@ -60,18 +58,18 @@ function Publish-App([string]$OutputDirectory, [bool]$SingleFile) {
         if ($pdbFiles.Count -gt 0) { throw "发布目录中发现 PDB: $($pdbFiles.FullName -join ', ')" }
 
         $app = Get-Item (Join-Path $OutputDirectory 'CodexLimitWidget.App.exe')
-        if ($app.VersionInfo.ProductVersion -ne $BinaryVersion) {
-            throw "软件产品版本不正确: $($app.VersionInfo.ProductVersion)，预期 $BinaryVersion。"
+        if ($app.VersionInfo.ProductVersion -ne $InformationalVersion) {
+            throw "软件信息版本不正确: $($app.VersionInfo.ProductVersion)，预期 $InformationalVersion。"
         }
-        if ($app.VersionInfo.FileVersion -ne $BinaryVersion) {
-            throw "软件文件版本不正确: $($app.VersionInfo.FileVersion)，预期 $BinaryVersion。"
+        if ($app.VersionInfo.FileVersion -ne $ProductVersion) {
+            throw "软件文件版本不正确: $($app.VersionInfo.FileVersion)，预期 $ProductVersion。"
         }
 
         $assemblyPath = Join-Path $OutputDirectory 'CodexLimitWidget.App.dll'
         if (Test-Path $assemblyPath) {
             $assemblyVersion = [System.Reflection.AssemblyName]::GetAssemblyName($assemblyPath).Version.ToString()
-            if ($assemblyVersion -ne $BinaryVersion) {
-                throw "程序集版本不正确: $assemblyVersion，预期 $BinaryVersion。"
+            if ($assemblyVersion -ne $ProductVersion) {
+                throw "程序集版本不正确: $assemblyVersion，预期 $ProductVersion。"
             }
         }
     }
@@ -96,7 +94,10 @@ function Resolve-Iscc {
 }
 
 switch ($Choice) {
-    '1' { dotnet build $projectPath -c Debug }
+    '1' {
+        dotnet build $projectPath -c Debug -p:Version=$Version -p:InformationalVersion=$InformationalVersion `
+            -p:AssemblyVersion=$ProductVersion -p:FileVersion=$ProductVersion
+    }
     '2' { Publish-App (Join-Path $repoRoot 'publish\release') $false }
     '3' { Publish-App (Join-Path $repoRoot 'publish\single-file') $true }
     '4' {
@@ -105,7 +106,7 @@ switch ($Choice) {
         Publish-App (Join-Path $repoRoot 'publish\win-x64\app') $false
         & (Join-Path $PSScriptRoot 'download-inno-languages.ps1')
         $iscc = Resolve-Iscc
-        & $iscc "/DMyAppVersion=$Version" (Join-Path $PSScriptRoot 'CodexLimitWidget.iss')
+        & $iscc "/DMyAppVersion=$Version" "/DMyAppProductVersion=$ProductVersion" (Join-Path $PSScriptRoot 'CodexLimitWidget.iss')
         if ($LASTEXITCODE -ne 0) { throw "ISCC 构建失败，退出码 $LASTEXITCODE。" }
         Write-Host "安装包已生成到: $(Join-Path $repoRoot 'dist')" -ForegroundColor Green
     }

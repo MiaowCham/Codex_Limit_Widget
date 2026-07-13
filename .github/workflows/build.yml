@@ -9,9 +9,9 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "打包版本号（x.y.z；可选 v 前缀）"
+        description: "打包版本号（x.y.z[-suffix] 或 x.y.z.w[-suffix]；可选 v 前缀）"
         required: true
-        default: "0.2.6"
+        default: "1.0.0"
         type: string
 
 jobs:
@@ -27,7 +27,22 @@ jobs:
       - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: "10.0.x"
-      - run: dotnet build CodexLimitWidget.slnx -c Release
+      - name: Resolve CI informational version
+        shell: pwsh
+        run: |
+          . ./installer/Versioning.ps1
+          $stored = Get-CodexStoredVersion -RepositoryRoot $env:GITHUB_WORKSPACE
+          $ciVersion = Add-CodexCommitHash -InformationalVersion $stored.InformationalVersion -CommitHash $env:GITHUB_SHA
+          "CI_INFORMATIONAL_VERSION=$ciVersion" >> $env:GITHUB_ENV
+      - name: Test PowerShell versioning
+        shell: pwsh
+        run: ./installer/test-versioning.ps1
+      - name: Test Bash versioning
+        shell: bash
+        run: bash installer/test-versioning.sh
+      - name: Build
+        shell: pwsh
+        run: dotnet build CodexLimitWidget.slnx -c Release "-p:InformationalVersion=$env:CI_INFORMATIONAL_VERSION"
       - run: dotnet test CodexLimitWidget.slnx -c Release --no-build
 
   package-windows:
@@ -41,6 +56,14 @@ jobs:
       - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: "10.0.x"
+      - name: Resolve package versions
+        shell: pwsh
+        run: |
+          . ./installer/Versioning.ps1
+          $resolved = Resolve-CodexVersion -Version $env:PACKAGE_VERSION
+          $ciVersion = Add-CodexCommitHash -InformationalVersion $resolved.InformationalVersion -CommitHash $env:GITHUB_SHA
+          "PACKAGE_VERSION=$($resolved.Version)" >> $env:GITHUB_ENV
+          "CI_INFORMATIONAL_VERSION=$ciVersion" >> $env:GITHUB_ENV
       - name: Install Inno Setup
         run: choco install innosetup -y --no-progress
       - name: Download Inno Setup translations
@@ -49,8 +72,7 @@ jobs:
       - name: Build self-contained installer
         shell: pwsh
         run: |
-          $version = $env:PACKAGE_VERSION.TrimStart('v')
-          ./installer/build-windows.ps1 -Version $version
+          ./installer/build-windows.ps1 -Version $env:PACKAGE_VERSION -InformationalVersion $env:CI_INFORMATIONAL_VERSION
       - uses: actions/upload-artifact@v4
         with:
           name: CodexLimitWidget-windows-x64-setup
@@ -68,8 +90,18 @@ jobs:
       - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: "10.0.x"
+      - name: Resolve package versions
+        shell: pwsh
+        run: |
+          . ./installer/Versioning.ps1
+          $resolved = Resolve-CodexVersion -Version $env:PACKAGE_VERSION
+          $ciVersion = Add-CodexCommitHash -InformationalVersion $resolved.InformationalVersion -CommitHash $env:GITHUB_SHA
+          "PACKAGE_VERSION=$($resolved.Version)" >> $env:GITHUB_ENV
+          "CI_INFORMATIONAL_VERSION=$ciVersion" >> $env:GITHUB_ENV
       - name: Build binary and Debian package
-        run: printf '1\n1\n3\n%s\n' "${PACKAGE_VERSION#v}" | bash installer/build-linux.sh
+        run: |
+          export INFORMATIONAL_VERSION="$CI_INFORMATIONAL_VERSION"
+          printf '1\n1\n3\n%s\n' "$PACKAGE_VERSION" | bash installer/build-linux.sh
       - name: Archive standalone binary with Unix permissions
         run: |
           tar -C publish/linux-x64/app -czf dist/CodexLimitWidget-linux-x64.tar.gz CodexLimitWidget.App
@@ -100,8 +132,18 @@ jobs:
       - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: "10.0.x"
+      - name: Resolve package versions
+        shell: pwsh
+        run: |
+          . ./installer/Versioning.ps1
+          $resolved = Resolve-CodexVersion -Version $env:PACKAGE_VERSION
+          $ciVersion = Add-CodexCommitHash -InformationalVersion $resolved.InformationalVersion -CommitHash $env:GITHUB_SHA
+          "PACKAGE_VERSION=$($resolved.Version)" >> $env:GITHUB_ENV
+          "CI_INFORMATIONAL_VERSION=$ciVersion" >> $env:GITHUB_ENV
       - name: Build ad-hoc signed app
-        run: printf '1\n%s\n2\n%s\n' "${{ matrix.architecture_choice }}" "${PACKAGE_VERSION#v}" | bash installer/build-macos.sh
+        run: |
+          export INFORMATIONAL_VERSION="$CI_INFORMATIONAL_VERSION"
+          printf '1\n%s\n2\n%s\n' "${{ matrix.architecture_choice }}" "$PACKAGE_VERSION" | bash installer/build-macos.sh
       - uses: actions/upload-artifact@v4
         with:
           name: "CodexLimitWidget-${{ matrix.rid }}-zip"
