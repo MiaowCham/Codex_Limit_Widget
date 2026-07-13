@@ -1,0 +1,19 @@
+<Application xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:resources="using:CodexLimitWidget.Core.Resources" xmlns:app="using:CodexLimitWidget.App" x:Class="CodexLimitWidget.App.App">
+  <Application.Styles><FluentTheme /></Application.Styles>
+  <TrayIcon.Icons>
+    <TrayIcons>
+      <TrayIcon Icon="/Assets/icon.ico" ToolTipText="Codex Limit Widget">
+        <TrayIcon.Menu>
+          <NativeMenu>
+            <NativeMenuItem Header="{x:Static resources:Strings.TrayHideWindow}" Click="ToggleWindow_Click"/>
+            <NativeMenuItem Header="{x:Static resources:Strings.TooltipDisableTopmost}" Click="ToggleTopmost_Click"/>
+            <NativeMenuItem Header="{x:Static resources:Strings.TrayRefresh}" Click="Refresh_Click"/>
+            <NativeMenuItemSeparator/>
+            <NativeMenuItem Header="{x:Static app:LocalizedStrings.VersionMenuHeader}" Click="OpenRepository_Click"/>
+            <NativeMenuItem Header="{x:Static resources:Strings.TrayExit}" Click="Exit_Click"/>
+          </NativeMenu>
+        </TrayIcon.Menu>
+      </TrayIcon>
+    </TrayIcons>
+  </TrayIcon.Icons>
+</Application>

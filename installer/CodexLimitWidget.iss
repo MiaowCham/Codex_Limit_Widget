@@ -1,16 +1,18 @@
 #define MyAppName "Codex Limit Widget"
 #ifndef MyAppVersion
-  #define MyAppVersion "0.1.0"
+  #define MyAppVersion "0.2.6"
 #endif
 #define MyAppPublisher "CodexLimitWidget Contributors"
-#define MyAppExeName "CodexLimitWidget.exe"
-#define MyAppSourceDir "..\publish\release"
+#define MyAppExeName "CodexLimitWidget.App.exe"
+#define MyAppSourceDir "..\publish\win-x64\app"
 #define MyAppIconPath "..\icon.ico"
 #define MyAppLicensePath "..\LICENSE"
-#define DotNetDownloadURL "https://dotnet.microsoft.com/zh-cn/download/dotnet/10.0"
 
 [Languages]
-Name: "chinese_simplified"; MessagesFile: "compiler:Languages\ChineseSimplified.isl"
+Name: "english"; MessagesFile: "compiler:Default.isl"
+Name: "chinese_simplified"; MessagesFile: "Languages\ChineseSimplified.isl"
+Name: "chinese_traditional"; MessagesFile: "Languages\ChineseTraditional.isl"
+Name: "japanese"; MessagesFile: "Languages\Japanese.isl"
 
 [Setup]
 AppId={{D64D2C37-0B3E-4A5C-9F0C-0E8A0C5D1987}
@@ -48,32 +50,3 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; WorkingDi
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "启动 {#MyAppName}"; Flags: nowait postinstall skipifsilent
-
-[Code]
-function HasDotNet10DesktopRuntime: Boolean;
-var
-  BasePath: string;
-  FindRec: TFindRec;
-begin
-  Result := False;
-  BasePath := ExpandConstant('{commonpf64}\dotnet\shared\Microsoft.WindowsDesktop.App');
-  if not DirExists(BasePath) then Exit;
-  if FindFirst(BasePath + '\10.*', FindRec) then
-  begin
-    try
-      Result := (FindRec.Attributes and FILE_ATTRIBUTE_DIRECTORY) <> 0;
-    finally
-      FindClose(FindRec);
-    end;
-  end;
-end;
-
-function InitializeSetup: Boolean;
-var
-  ResultCode: Integer;
-begin
-  Result := True;
-  if not HasDotNet10DesktopRuntime then
-    if MsgBox('需要 .NET 10 Desktop Runtime。是否打开官方下载页面？', mbConfirmation, MB_YESNO) = IDYES then
-      ShellExec('open', '{#DotNetDownloadURL}', '', '', SW_SHOWNORMAL, ewNoWait, ResultCode);
-end;

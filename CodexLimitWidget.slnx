@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="CodexLimitWidget.App/CodexLimitWidget.App.csproj" />
+  <Project Path="CodexLimitWidget.Cli/CodexLimitWidget.Cli.csproj" />
+  <Project Path="CodexLimitWidget.Core/CodexLimitWidget.Core.csproj" />
+  <Project Path="CodexLimitWidget.Tests/CodexLimitWidget.Tests.csproj" />
+</Solution>

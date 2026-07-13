@@ -17,8 +17,6 @@ A lightweight cross-platform desktop widget for viewing Codex usage and reset ti
 
 > [!NOTE]
 > This project is Powered by Codex
->
-> The new version (≥0.2.x) of the source code is located in the `dev` branch.
 
 ## Features
 

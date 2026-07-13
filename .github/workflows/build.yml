@@ -5,123 +5,106 @@ on:
     branches: [main]
     tags: ["v*"]
   pull_request:
-    branches: [main]
+    branches: [main, dev]
   workflow_dispatch:
+    inputs:
+      version:
+        description: "打包版本号（x.y.z；可选 v 前缀）"
+        required: true
+        default: "0.2.6"
+        type: string
 
 jobs:
-  build:
-    runs-on: windows-latest
-    permissions:
-      contents: write
-
+  verify:
+    name: Verify (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: "10.0.x"
+      - run: dotnet build CodexLimitWidget.slnx -c Release
+      - run: dotnet test CodexLimitWidget.slnx -c Release --no-build
 
-      - name: Resolve version
-        id: version
-        shell: pwsh
-        run: |
-          if ($env:GITHUB_REF -match '^refs/tags/v(.+)$') {
-            $version = $Matches[1]
-            Write-Host "Version from tag: $version"
-          } else {
-            $xml = [xml](Get-Content -Raw -LiteralPath CodexLimitWidget.csproj)
-            $version = @($xml.Project.PropertyGroup.Version | Where-Object { $_ })[0]
-            Write-Host "Version from project: $version"
-          }
-          if ($version -notmatch '^\d+\.\d+\.\d+$') {
-            throw "Version must use x.y.z format: $version"
-          }
-          "value=$version" >> $env:GITHUB_OUTPUT
-          "tag=v$version" >> $env:GITHUB_OUTPUT
-
-      - name: Publish release build
-        shell: pwsh
-        run: |
-          dotnet publish CodexLimitWidget.csproj `
-            -c Release -r win-x64 --self-contained false `
-            -p:PublishSingleFile=false `
-            -p:DebugType=None -p:DebugSymbols=false `
-            -p:Version=${{ steps.version.outputs.value }} `
-            -p:InformationalVersion=${{ steps.version.outputs.value }}.0 `
-            -p:AssemblyVersion=${{ steps.version.outputs.value }}.0 `
-            -p:FileVersion=${{ steps.version.outputs.value }}.0 `
-            -o publish/release
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
-      - name: Publish single-file build
-        shell: pwsh
-        run: |
-          dotnet publish CodexLimitWidget.csproj `
-            -c Release -r win-x64 --self-contained false `
-            -p:PublishSingleFile=true `
-            -p:DebugType=None -p:DebugSymbols=false `
-            -p:Version=${{ steps.version.outputs.value }} `
-            -p:InformationalVersion=${{ steps.version.outputs.value }}.0 `
-            -p:AssemblyVersion=${{ steps.version.outputs.value }}.0 `
-            -p:FileVersion=${{ steps.version.outputs.value }}.0 `
-            -o publish/single-file
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
-      - name: Verify release outputs
-        shell: pwsh
-        run: |
-          $pdbFiles = @(Get-ChildItem -Recurse -File publish -Filter *.pdb)
-          if ($pdbFiles.Count -gt 0) {
-            throw "Unexpected PDB files: $($pdbFiles.FullName -join ', ')"
-          }
-          $app = Get-Item publish/release/CodexLimitWidget.exe
-          if ($app.VersionInfo.ProductVersion -ne '${{ steps.version.outputs.value }}.0') {
-            throw "Unexpected product version: $($app.VersionInfo.ProductVersion)"
-          }
-          if ($app.VersionInfo.FileVersion -ne '${{ steps.version.outputs.value }}.0') {
-            throw "Unexpected file version: $($app.VersionInfo.FileVersion)"
-          }
-          $assemblyVersion = [System.Reflection.AssemblyName]::GetAssemblyName(
-            (Resolve-Path publish/release/CodexLimitWidget.dll)
-          ).Version.ToString()
-          if ($assemblyVersion -ne '${{ steps.version.outputs.value }}.0') {
-            throw "Unexpected assembly version: $assemblyVersion"
-          }
-
-      - name: Build installer
-        shell: pwsh
-        run: |
-          $iscc = (Get-Command iscc -ErrorAction SilentlyContinue).Source
-          if (-not $iscc) {
-            $iscc = Join-Path ${env:ProgramFiles(x86)} 'Inno Setup 6\ISCC.exe'
-          }
-          if (-not (Test-Path $iscc)) {
-            throw 'Inno Setup 6 ISCC.exe was not found on the runner.'
-          }
-          & $iscc "/DMyAppVersion=${{ steps.version.outputs.value }}" installer\CodexLimitWidget.CI.iss
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
-      - name: Upload single-file artifact
-        uses: actions/upload-artifact@v4
+  package-windows:
+    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
+    needs: verify
+    runs-on: windows-latest
+    env:
+      PACKAGE_VERSION: ${{ github.event_name == 'workflow_dispatch' && inputs.version || github.ref_name }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-dotnet@v5
         with:
-          name: CodexLimitWidget-v${{ steps.version.outputs.value }}-single-file
-          path: publish/single-file/CodexLimitWidget.exe
+          dotnet-version: "10.0.x"
+      - name: Install Inno Setup
+        run: choco install innosetup -y --no-progress
+      - name: Download Inno Setup translations
+        shell: pwsh
+        run: ./installer/download-inno-languages.ps1
+      - name: Build self-contained installer
+        shell: pwsh
+        run: |
+          $version = $env:PACKAGE_VERSION.TrimStart('v')
+          ./installer/build-windows.ps1 -Version $version
+      - uses: actions/upload-artifact@v4
+        with:
+          name: CodexLimitWidget-windows-x64-setup
+          path: dist/*.exe
           if-no-files-found: error
 
-      - name: Upload installer artifact
-        uses: actions/upload-artifact@v4
+  package-linux:
+    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
+    needs: verify
+    runs-on: ubuntu-latest
+    env:
+      PACKAGE_VERSION: ${{ github.event_name == 'workflow_dispatch' && inputs.version || github.ref_name }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-dotnet@v5
         with:
-          name: CodexLimitWidget-v${{ steps.version.outputs.value }}-Setup
-          path: dist/CodexLimitWidget-*-Setup.exe
+          dotnet-version: "10.0.x"
+      - name: Build binary and Debian package
+        run: printf '1\n1\n3\n%s\n' "${PACKAGE_VERSION#v}" | bash installer/build-linux.sh
+      - name: Archive standalone binary with Unix permissions
+        run: |
+          tar -C publish/linux-x64/app -czf dist/CodexLimitWidget-linux-x64.tar.gz CodexLimitWidget.App
+      - uses: actions/upload-artifact@v4
+        with:
+          name: CodexLimitWidget-linux-x64
+          path: |
+            dist/CodexLimitWidget-linux-x64.tar.gz
+            dist/*.deb
           if-no-files-found: error
 
-      - name: Create GitHub Release
-        if: startsWith(github.ref, 'refs/tags/v')
-        uses: softprops/action-gh-release@v2
+  package-macos:
+    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
+    needs: verify
+    runs-on: macos-latest
+    env:
+      PACKAGE_VERSION: ${{ github.event_name == 'workflow_dispatch' && inputs.version || github.ref_name }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - rid: osx-arm64
+            architecture_choice: 1
+          - rid: osx-x64
+            architecture_choice: 2
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-dotnet@v5
         with:
-          name: Codex Limit Widget v${{ steps.version.outputs.value }}
-          prerelease: true
-          files: |
-            dist/CodexLimitWidget-*-Setup.exe
-            publish/single-file/CodexLimitWidget.exe
+          dotnet-version: "10.0.x"
+      - name: Build ad-hoc signed app
+        run: printf '1\n%s\n2\n%s\n' "${{ matrix.architecture_choice }}" "${PACKAGE_VERSION#v}" | bash installer/build-macos.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: "CodexLimitWidget-${{ matrix.rid }}-zip"
+          # A ZIP created by ditto retains the executable mode inside the app bundle.
+          path: dist/*.zip
+          if-no-files-found: error

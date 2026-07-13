@@ -7,11 +7,16 @@ param(
 $ErrorActionPreference = 'Stop'
 
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
-$projectPath = Join-Path $repoRoot 'CodexLimitWidget.csproj'
+$projectPath = Join-Path $repoRoot 'CodexLimitWidget.App\CodexLimitWidget.App.csproj'
+$versionPropsPath = Join-Path $repoRoot 'Directory.Build.props'
 
 if (-not $Version) {
     $xml = [xml](Get-Content -Raw -LiteralPath $projectPath)
     $Version = @($xml.Project.PropertyGroup.Version | Where-Object { $_ })[0]
+    if (-not $Version) {
+        $versionProps = [xml](Get-Content -Raw -LiteralPath $versionPropsPath)
+        $Version = @($versionProps.Project.PropertyGroup.Version | Where-Object { $_ })[0]
+    }
 }
 if (-not $Version) { throw '无法从项目文件读取版本号。' }
 $Version = $Version -replace '^v', ''
@@ -48,10 +53,13 @@ function Publish-App([string]$OutputDirectory, [bool]$SingleFile) {
             -o $OutputDirectory
         if ($LASTEXITCODE -ne 0) { throw "dotnet publish 失败，退出码 $LASTEXITCODE。" }
 
+        # Native dependencies may include their own PDBs even when the application
+        # is published with DebugType=None; they are not distributable artifacts.
+        Get-ChildItem -Recurse -File $OutputDirectory -Filter *.pdb -ErrorAction SilentlyContinue | Remove-Item -Force
         $pdbFiles = @(Get-ChildItem -Recurse -File $OutputDirectory -Filter *.pdb -ErrorAction SilentlyContinue)
         if ($pdbFiles.Count -gt 0) { throw "发布目录中发现 PDB: $($pdbFiles.FullName -join ', ')" }
 
-        $app = Get-Item (Join-Path $OutputDirectory 'CodexLimitWidget.exe')
+        $app = Get-Item (Join-Path $OutputDirectory 'CodexLimitWidget.App.exe')
         if ($app.VersionInfo.ProductVersion -ne $BinaryVersion) {
             throw "软件产品版本不正确: $($app.VersionInfo.ProductVersion)，预期 $BinaryVersion。"
         }
@@ -59,7 +67,7 @@ function Publish-App([string]$OutputDirectory, [bool]$SingleFile) {
             throw "软件文件版本不正确: $($app.VersionInfo.FileVersion)，预期 $BinaryVersion。"
         }
 
-        $assemblyPath = Join-Path $OutputDirectory 'CodexLimitWidget.dll'
+        $assemblyPath = Join-Path $OutputDirectory 'CodexLimitWidget.App.dll'
         if (Test-Path $assemblyPath) {
             $assemblyVersion = [System.Reflection.AssemblyName]::GetAssemblyName($assemblyPath).Version.ToString()
             if ($assemblyVersion -ne $BinaryVersion) {
@@ -92,16 +100,12 @@ switch ($Choice) {
     '2' { Publish-App (Join-Path $repoRoot 'publish\release') $false }
     '3' { Publish-App (Join-Path $repoRoot 'publish\single-file') $true }
     '4' {
-        Publish-App (Join-Path $repoRoot 'publish\release') $false
+        # The Inno Setup scripts consume this directory and recursively include
+        # culture-specific satellite assemblies when present.
+        Publish-App (Join-Path $repoRoot 'publish\win-x64\app') $false
+        & (Join-Path $PSScriptRoot 'download-inno-languages.ps1')
         $iscc = Resolve-Iscc
-        $languageFile = Join-Path (Split-Path $iscc) 'Languages\ChineseSimplified.isl'
-        $issFile = if (Test-Path $languageFile) {
-            Join-Path $PSScriptRoot 'CodexLimitWidget.iss'
-        } else {
-            Write-Host '未找到中文语言包，使用 CI 英文安装脚本。' -ForegroundColor Yellow
-            Join-Path $PSScriptRoot 'CodexLimitWidget.CI.iss'
-        }
-        & $iscc "/DMyAppVersion=$Version" $issFile
+        & $iscc "/DMyAppVersion=$Version" (Join-Path $PSScriptRoot 'CodexLimitWidget.iss')
         if ($LASTEXITCODE -ne 0) { throw "ISCC 构建失败，退出码 $LASTEXITCODE。" }
         Write-Host "安装包已生成到: $(Join-Path $repoRoot 'dist')" -ForegroundColor Green
     }
