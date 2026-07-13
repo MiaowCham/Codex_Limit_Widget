@@ -5,9 +5,23 @@
 #ifndef MyAppProductVersion
   #define MyAppProductVersion "1.0.0.0"
 #endif
+#ifndef MyAppSourceDir
+  #define MyAppSourceDir "..\publish\win-x64\self-contained"
+#endif
+#ifndef MyAppPackageSuffix
+  #define MyAppPackageSuffix "Windows-x64-Full-Setup"
+#endif
+#ifndef MyAppPackageLabel
+  #define MyAppPackageLabel "Full"
+#endif
+#ifndef MyAppRequiresRuntime
+  #define MyAppRequiresRuntime 0
+#endif
+#ifndef MyAppRequiredRuntimeMajor
+  #define MyAppRequiredRuntimeMajor 10
+#endif
 #define MyAppPublisher "CodexLimitWidget Contributors"
 #define MyAppExeName "CodexLimitWidget.App.exe"
-#define MyAppSourceDir "..\publish\win-x64\app"
 #define MyAppIconPath "..\icon.ico"
 #define MyAppLicensePath "..\LICENSE"
 
@@ -22,13 +36,13 @@ AppId={{D64D2C37-0B3E-4A5C-9F0C-0E8A0C5D1987}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 VersionInfoVersion={#MyAppProductVersion}
-AppVerName={#MyAppName} {#MyAppVersion}
+AppVerName={#MyAppName} {#MyAppVersion} ({#MyAppPackageLabel})
 AppPublisher={#MyAppPublisher}
 DefaultDirName={autopf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 AllowNoIcons=yes
 OutputDir=..\dist
-OutputBaseFilename=CodexLimitWidget-{#MyAppVersion}-Setup
+OutputBaseFilename=CodexLimitWidget-{#MyAppVersion}-{#MyAppPackageSuffix}
 SetupIconFile={#MyAppIconPath}
 LicenseFile={#MyAppLicensePath}
 UninstallDisplayIcon={app}\{#MyAppExeName}
@@ -53,3 +67,46 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; WorkingDi
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "启动 {#MyAppName}"; Flags: nowait postinstall skipifsilent
+
+#if MyAppRequiresRuntime
+[Code]
+function HasRequiredDotNetRuntime(): Boolean;
+var
+  Versions: TArrayOfString;
+  I: Integer;
+  RequiredPrefix: String;
+begin
+  Result := False;
+  RequiredPrefix := IntToStr({#MyAppRequiredRuntimeMajor}) + '.';
+  if RegGetValueNames(
+    HKLM64,
+    'SOFTWARE\dotnet\Setup\InstalledVersions\x64\sharedfx\Microsoft.NETCore.App',
+    Versions
+  ) then
+  begin
+    for I := 0 to GetArrayLength(Versions) - 1 do
+    begin
+      if Pos(RequiredPrefix, Versions[I]) = 1 then
+      begin
+        Result := True;
+        Exit;
+      end;
+    end;
+  end;
+end;
+
+function InitializeSetup(): Boolean;
+begin
+  Result := True;
+  if not HasRequiredDotNetRuntime() then
+  begin
+    Result := MsgBox(
+      '.NET {#MyAppRequiredRuntimeMajor} x64 Runtime was not detected.' + #13#10 + #13#10 +
+      'Install it from https://dotnet.microsoft.com/download/dotnet/{#MyAppRequiredRuntimeMajor}.0 before running Codex Limit Widget.' + #13#10 + #13#10 +
+      'Continue installing the Slim package anyway?',
+      mbConfirmation,
+      MB_YESNO
+    ) = IDYES;
+  end;
+end;
+#endif

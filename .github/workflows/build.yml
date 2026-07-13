@@ -69,14 +69,24 @@ jobs:
       - name: Download Inno Setup translations
         shell: pwsh
         run: ./installer/download-inno-languages.ps1
-      - name: Build self-contained installer
+      - name: Build Slim and Full installers
         shell: pwsh
         run: |
           ./installer/build-windows.ps1 -Version $env:PACKAGE_VERSION -InformationalVersion $env:CI_INFORMATIONAL_VERSION
+          $expected = @(
+            "CodexLimitWidget-$env:PACKAGE_VERSION-Windows-x64-Slim-Setup.exe",
+            "CodexLimitWidget-$env:PACKAGE_VERSION-Windows-x64-Full-Setup.exe"
+          ) | Sort-Object
+          $actual = @(Get-ChildItem dist -File -Filter *.exe | Select-Object -ExpandProperty Name | Sort-Object)
+          if (@(Compare-Object $expected $actual).Count -ne 0 -or $actual.Count -ne 2) {
+            throw "Expected exactly two Windows installers; found: $($actual -join ', ')"
+          }
       - uses: actions/upload-artifact@v4
         with:
-          name: CodexLimitWidget-windows-x64-setup
-          path: dist/*.exe
+          name: CodexLimitWidget-windows-x64-setups
+          path: |
+            dist/CodexLimitWidget-*-Windows-x64-Slim-Setup.exe
+            dist/CodexLimitWidget-*-Windows-x64-Full-Setup.exe
           if-no-files-found: error
 
   package-linux:
