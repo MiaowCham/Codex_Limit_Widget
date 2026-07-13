@@ -1,4 +1,4 @@
-"""Create flattened ICO and ICNS compatibility icons from the canonical PNG."""
+"""Generate flattened ICO and ICNS compatibility icons from the canonical PNG."""
 from pathlib import Path
 from PIL import Image
 

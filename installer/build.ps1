@@ -1,6 +1,7 @@
 param(
-    [ValidateSet('1', '2', '3', '4')]
-    [string]$Choice,
+    [ValidateSet('Slim', 'Full', 'Both')]
+    [Alias('Mode')]
+    [string]$Package,
     [string]$Version,
     [string]$InformationalVersion
 )
@@ -9,100 +10,43 @@ $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'Versioning.ps1')
 
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
-$projectPath = Join-Path $repoRoot 'CodexLimitWidget.App\CodexLimitWidget.App.csproj'
-
 if (-not $Version) {
     $stored = Get-CodexStoredVersion -RepositoryRoot $repoRoot
     $Version = $stored.Version
     if (-not $InformationalVersion) { $InformationalVersion = $stored.InformationalVersion }
 }
 $resolved = Resolve-CodexVersion -Version $Version -InformationalVersion $InformationalVersion
-$Version = $resolved.Version
-$ProductVersion = $resolved.ProductVersion
-$InformationalVersion = $resolved.InformationalVersion
-Write-Host "使用版本号: $Version（InformationalVersion $InformationalVersion；产品版本 $ProductVersion）" -ForegroundColor DarkCyan
 
-if (-not $Choice) {
-    Write-Host '请选择构建类型:' -ForegroundColor Cyan
-    Write-Host '  1) Debug 构建'
-    Write-Host '  2) Release 发布（框架依赖，安装包输入）'
-    Write-Host '  3) Release 单文件发布（框架依赖）'
-    Write-Host '  4) 构建安装包（自动执行 Release 发布）'
-    $Choice = Read-Host '输入数字 1/2/3/4'
-}
-
-Set-Location $repoRoot
-
-function Publish-App([string]$OutputDirectory, [bool]$SingleFile) {
-    # dotnet publish 默认会先写入 bin，再复制到 -o 指定目录。
-    # 使用 obj 下的隔离目录作为临时构建输出，避免覆盖手动构建结果或留下重复产物。
-    $isolatedBuildOutput = Join-Path $repoRoot 'obj\build-script-output'
-
-    if (Test-Path $OutputDirectory) { Remove-Item -Recurse -Force -LiteralPath $OutputDirectory }
-    if (Test-Path $isolatedBuildOutput) { Remove-Item -Recurse -Force -LiteralPath $isolatedBuildOutput }
-
-    try {
-        dotnet publish $projectPath -c Release -r win-x64 --self-contained false `
-            -p:BaseOutputPath="$isolatedBuildOutput\" `
-            -p:PublishSingleFile=$($SingleFile.ToString().ToLowerInvariant()) `
-            -p:DebugType=None -p:DebugSymbols=false `
-            -p:Version=$Version -p:InformationalVersion=$InformationalVersion `
-            -p:AssemblyVersion=$ProductVersion -p:FileVersion=$ProductVersion `
-            -o $OutputDirectory
-        if ($LASTEXITCODE -ne 0) { throw "dotnet publish 失败，退出码 $LASTEXITCODE。" }
-
-        # Native dependencies may include their own PDBs even when the application
-        # is published with DebugType=None; they are not distributable artifacts.
-        Get-ChildItem -Recurse -File $OutputDirectory -Filter *.pdb -ErrorAction SilentlyContinue | Remove-Item -Force
-        $pdbFiles = @(Get-ChildItem -Recurse -File $OutputDirectory -Filter *.pdb -ErrorAction SilentlyContinue)
-        if ($pdbFiles.Count -gt 0) { throw "发布目录中发现 PDB: $($pdbFiles.FullName -join ', ')" }
-
-        $app = Get-Item (Join-Path $OutputDirectory 'CodexLimitWidget.App.exe')
-        if ($app.VersionInfo.ProductVersion -ne $InformationalVersion) {
-            throw "软件信息版本不正确: $($app.VersionInfo.ProductVersion)，预期 $InformationalVersion。"
-        }
-        if ($app.VersionInfo.FileVersion -ne $ProductVersion) {
-            throw "软件文件版本不正确: $($app.VersionInfo.FileVersion)，预期 $ProductVersion。"
-        }
-
-        $assemblyPath = Join-Path $OutputDirectory 'CodexLimitWidget.App.dll'
-        if (Test-Path $assemblyPath) {
-            $assemblyVersion = [System.Reflection.AssemblyName]::GetAssemblyName($assemblyPath).Version.ToString()
-            if ($assemblyVersion -ne $ProductVersion) {
-                throw "程序集版本不正确: $assemblyVersion，预期 $ProductVersion。"
-            }
-        }
-    }
-    finally {
-        if (Test-Path $isolatedBuildOutput) {
-            Remove-Item -Recurse -Force -LiteralPath $isolatedBuildOutput
-        }
+if (-not $Package) {
+    Write-Host ''
+    Write-Host 'Codex Limit Widget - Windows 安装包构建' -ForegroundColor Cyan
+    Write-Host '构建前提：.NET SDK、Inno Setup 6，以及可用的网络连接（下载安装器语言文件）。'
+    Write-Host ''
+    Write-Host '  1) Slim  - 精简安装包；体积较小，目标电脑需要匹配的 .NET x64 Runtime'
+    Write-Host '  2) Full  - 完整安装包；包含 .NET Runtime，目标电脑无需预装 .NET'
+    Write-Host '  3) Both  - 同时生成 Slim 和 Full（默认）'
+    Write-Host ''
+    $selection = Read-Host '请选择 1/2/3，直接回车使用默认值 3'
+    if ([string]::IsNullOrWhiteSpace($selection)) { $selection = '3' }
+    $Package = switch ($selection) {
+        '1' { 'Slim' }
+        '2' { 'Full' }
+        '3' { 'Both' }
+        default { throw "无效选项 '$selection'。请输入 1、2 或 3。" }
     }
 }
 
-function Resolve-Iscc {
-    $command = Get-Command iscc -ErrorAction SilentlyContinue
-    if ($command) { return $command.Source }
-    $candidates = @(
-        (Join-Path $env:LOCALAPPDATA 'Programs\Inno Setup 6\ISCC.exe'),
-        'C:\Program Files (x86)\Inno Setup 6\ISCC.exe'
-    )
-    foreach ($candidate in $candidates) {
-        if (Test-Path $candidate) { return $candidate }
-    }
-    throw '未找到 ISCC.exe。请先安装 Inno Setup 6。'
-}
+Write-Host ''
+Write-Host "构建类型：$Package" -ForegroundColor DarkCyan
+Write-Host "软件版本：$($resolved.Version)"
+Write-Host "信息版本：$($resolved.InformationalVersion)"
+Write-Host "输出目录：$(Join-Path $repoRoot 'dist')"
+Write-Host ''
 
-switch ($Choice) {
-    '1' {
-        dotnet build $projectPath -c Debug -p:Version=$Version -p:InformationalVersion=$InformationalVersion `
-            -p:AssemblyVersion=$ProductVersion -p:FileVersion=$ProductVersion
-    }
-    '2' { Publish-App (Join-Path $repoRoot 'publish\release') $false }
-    '3' { Publish-App (Join-Path $repoRoot 'publish\single-file') $true }
-    '4' {
-        & (Join-Path $PSScriptRoot 'build-windows.ps1') -Version $Version -InformationalVersion $InformationalVersion
-        if ($LASTEXITCODE -ne 0) { throw "Windows 双安装包构建失败，退出码 $LASTEXITCODE。" }
-        Write-Host "安装包已生成到: $(Join-Path $repoRoot 'dist')" -ForegroundColor Green
-    }
-}
+& (Join-Path $PSScriptRoot 'package-windows.ps1') `
+    -Package $Package `
+    -Version $resolved.Version `
+    -InformationalVersion $resolved.InformationalVersion
+
+Write-Host ''
+Write-Host 'Windows 安装包构建完成。' -ForegroundColor Green

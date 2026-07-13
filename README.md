@@ -101,11 +101,19 @@ dotnet publish CodexLimitWidget.App/CodexLimitWidget.App.csproj `
   -p:PublishSingleFile=true -o publish/win-x64/app
 ```
 
-To create both Windows installers, install Inno Setup 6 and run:
+To choose interactively between the Slim, Full, or both Windows installers, install Inno Setup 6 and run:
 
 ```powershell
-./installer/build-windows.ps1 -Version 1.0.0
+./installer/build.ps1
 ```
+
+For a non-interactive build of both installers:
+
+```powershell
+./installer/build.ps1 -Package Both -Version 1.0.0
+```
+
+Use `-Package Slim`, `-Package Full`, or `-Package Both`. Slim is framework-dependent and smaller; Full is self-contained and does not require a separately installed .NET runtime.
 
 Version inputs accept `x.y.z`, `x.y.z.w`, and either form with an alphanumeric suffix such as `1.2.3-preview` or `1.2.3.4-preview`. The complete input is stored as `InformationalVersion`; Assembly/File and installer resource versions use the numeric part before `-`, with `.0` appended to three-part versions. CI builds append another `-` plus the seven-character commit hash to `InformationalVersion` only. .NET exposes the informational value as the Windows PE `ProductVersion`; the strictly numeric values remain available as Assembly/File versions and the installer `VersionInfoVersion`.
 

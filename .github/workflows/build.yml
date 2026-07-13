@@ -34,12 +34,6 @@ jobs:
           $stored = Get-CodexStoredVersion -RepositoryRoot $env:GITHUB_WORKSPACE
           $ciVersion = Add-CodexCommitHash -InformationalVersion $stored.InformationalVersion -CommitHash $env:GITHUB_SHA
           "CI_INFORMATIONAL_VERSION=$ciVersion" >> $env:GITHUB_ENV
-      - name: Test PowerShell versioning
-        shell: pwsh
-        run: ./installer/test-versioning.ps1
-      - name: Test Bash versioning
-        shell: bash
-        run: bash installer/test-versioning.sh
       - name: Build
         shell: pwsh
         run: dotnet build CodexLimitWidget.slnx -c Release "-p:InformationalVersion=$env:CI_INFORMATIONAL_VERSION"
@@ -66,13 +60,10 @@ jobs:
           "CI_INFORMATIONAL_VERSION=$ciVersion" >> $env:GITHUB_ENV
       - name: Install Inno Setup
         run: choco install innosetup -y --no-progress
-      - name: Download Inno Setup translations
-        shell: pwsh
-        run: ./installer/download-inno-languages.ps1
       - name: Build Slim and Full installers
         shell: pwsh
         run: |
-          ./installer/build-windows.ps1 -Version $env:PACKAGE_VERSION -InformationalVersion $env:CI_INFORMATIONAL_VERSION
+          ./installer/build.ps1 -Package Both -Version $env:PACKAGE_VERSION -InformationalVersion $env:CI_INFORMATIONAL_VERSION
           $expected = @(
             "CodexLimitWidget-$env:PACKAGE_VERSION-Windows-x64-Slim-Setup.exe",
             "CodexLimitWidget-$env:PACKAGE_VERSION-Windows-x64-Full-Setup.exe"

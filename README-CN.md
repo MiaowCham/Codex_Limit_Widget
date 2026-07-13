@@ -101,11 +101,19 @@ dotnet publish CodexLimitWidget.App/CodexLimitWidget.App.csproj `
   -p:PublishSingleFile=true -o publish/win-x64/app
 ```
 
-生成两种 Windows 安装程序需要安装 Inno Setup 6：
+安装 Inno Setup 6 后，可通过交互菜单选择生成 Slim、Full 或两种 Windows 安装包：
 
 ```powershell
-./installer/build-windows.ps1 -Version 1.0.0
+./installer/build.ps1
 ```
+
+如需非交互地同时构建两种安装包：
+
+```powershell
+./installer/build.ps1 -Package Both -Version 1.0.0
+```
+
+`-Package` 支持 `Slim`、`Full`、`Both`。Slim 是体积较小的框架依赖版本；Full 是包含运行时的完整版本。
 
 版本输入支持 `x.y.z`、`x.y.z.w`，以及带字母数字后缀的形式，例如 `1.2.3-preview` 或 `1.2.3.4-preview`。完整输入会写入 `InformationalVersion`；程序集、文件和安装器资源版本使用 `-` 前的数字部分，三段版本会补 `.0`。CI 构建只会在 `InformationalVersion` 末尾再追加一个 `-` 和 7 位提交短 hash。.NET 会把信息版本映射为 Windows PE 的 `ProductVersion`；严格数字版本仍保存在 Assembly/File 版本和安装器 `VersionInfoVersion` 中。
 
