@@ -16,4 +16,4 @@ coverage/
 TODO.md
 show-limit.ps1
 start-widget.ps1
-installer/Languages/
+/installer/Languages/
