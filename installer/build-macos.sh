@@ -5,6 +5,7 @@ set -euo pipefail
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 project="$root/CodexLimitWidget.App/CodexLimitWidget.App.csproj"
 icon="$root/CodexLimitWidget.icns"
+source "$root/installer/versioning.sh"
 
 choose() {
   local prompt="$1" default="$2" answer
@@ -13,10 +14,11 @@ choose() {
 }
 
 build_one() {
-  local framework="$1" rid="$2" version="$3" stage="$root/publish/$rid-$framework/app"
+  local framework="$1" rid="$2" version="$3" product_version="$4" informational_version="$5" stage="$root/publish/$rid-$framework/app"
   rm -rf "$stage"
   dotnet publish "$project" -c Release -f "$framework" -r "$rid" --self-contained true \
-    -p:PublishSingleFile=true -p:Version="$version" -o "$stage" >&2
+    -p:PublishSingleFile=true -p:Version="$version" -p:InformationalVersion="$informational_version" \
+    -p:AssemblyVersion="$product_version" -p:FileVersion="$product_version" -o "$stage" >&2
   # Debug symbols are not part of the distributable application bundle.
   find "$stage" -type f -name '*.pdb' -delete
   printf '%s' "$stage"
@@ -26,6 +28,8 @@ create_app() {
   local source="$1"
   local name="$2"
   local version="$3"
+  local macos_version="$4"
+  local informational_version="$5"
   local app="$root/dist/$name.app"
   rm -rf "$app"
   install -d "$app/Contents/MacOS" "$app/Contents/Resources"
@@ -45,8 +49,10 @@ create_app() {
   <key>CFBundleIdentifier</key><string>io.github.miaowcham.codexlimitwidget</string>
   <key>CFBundleName</key><string>Codex Limit Widget</string>
   <key>CFBundlePackageType</key><string>APPL</string>
-  <key>CFBundleShortVersionString</key><string>$version</string>
-  <key>CFBundleVersion</key><string>$version</string>
+  <key>CFBundleShortVersionString</key><string>$macos_version</string>
+  <key>CFBundleVersion</key><string>$macos_version</string>
+  <key>CFBundleGetInfoString</key><string>$informational_version</string>
+  <key>CodexInformationalVersion</key><string>$informational_version</string>
   <key>LSUIElement</key><true/>
 </dict></plist>
 EOF
@@ -78,7 +84,11 @@ output_choice="$(choose '输入 1/2' 2)"
 case "$output_choice" in 1|2) ;; *) echo '无效的输出选择。' >&2; exit 2 ;; esac
 
 version="$(choose '版本号' "$(sed -n 's:.*<Version>\(.*\)</Version>.*:\1:p' "$root/Directory.Build.props" | head -n1)")"
-[[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo '版本号必须为 x.y.z。' >&2; exit 2; }
+resolve_codex_version "$version" "${INFORMATIONAL_VERSION:-}"
+version="$CODEX_VERSION"
+product_version="$CODEX_PRODUCT_VERSION"
+informational_version="$CODEX_INFORMATIONAL_VERSION"
+macos_version="$CODEX_MACOS_VERSION"
 command -v dotnet >/dev/null || { echo '未找到 dotnet。' >&2; exit 1; }
 command -v codesign >/dev/null || { echo '本脚本必须在 macOS 上运行。' >&2; exit 1; }
 [[ -f "$icon" ]] || { echo "未找到 $icon。请先生成项目根目录的 .icns 图标。" >&2; exit 1; }
@@ -86,8 +96,8 @@ mkdir -p "$root/dist"
 
 build_and_package() {
   local rid="$1" label="$2" stage
-  stage="$(build_one "$framework" "$rid" "$version")"
-  create_app "$stage" "CodexLimitWidget-${version}-${label}" "$version"
+  stage="$(build_one "$framework" "$rid" "$version" "$product_version" "$informational_version")"
+  create_app "$stage" "CodexLimitWidget-${version}-${label}" "$version" "$macos_version" "$informational_version"
   if [[ "$output_choice" == 2 ]]; then
     ditto -c -k --sequesterRsrc --keepParent "$root/dist/CodexLimitWidget-${version}-${label}.app" "$root/dist/CodexLimitWidget-${version}-${label}.zip"
     echo "ZIP 已生成：$root/dist/CodexLimitWidget-${version}-${label}.zip"

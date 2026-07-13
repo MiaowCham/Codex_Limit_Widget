@@ -106,6 +106,8 @@ dotnet publish CodexLimitWidget.App/CodexLimitWidget.App.csproj `
 ./installer/build-windows.ps1 -Version 1.0.0
 ```
 
+版本输入支持 `x.y.z`、`x.y.z.w`，以及带字母数字后缀的形式，例如 `1.2.3-preview` 或 `1.2.3.4-preview`。完整输入会写入 `InformationalVersion`；程序集、文件和安装器资源版本使用 `-` 前的数字部分，三段版本会补 `.0`。CI 构建只会在 `InformationalVersion` 末尾再追加一个 `-` 和 7 位提交短 hash。.NET 会把信息版本映射为 Windows PE 的 `ProductVersion`；严格数字版本仍保存在 Assembly/File 版本和安装器 `VersionInfoVersion` 中。
+
 ### Linux
 
 交互式脚本支持 x64/ARM64、.NET 10/.NET 8、自包含程序和 DEB 安装包：
@@ -124,7 +126,7 @@ bash installer/build-linux.sh
 bash installer/build-macos.sh
 ```
 
-.NET 10 为默认构建目标，脚本同时提供 .NET 8 兼容构建。应用包不在 `Info.plist` 中声明最低 macOS 版本；生成应用包需要项目根目录中的 `CodexLimitWidget.icns` 和系统自带的 `codesign`。
+.NET 10 为默认构建目标，脚本同时提供 .NET 8 兼容构建。应用包不在 `Info.plist` 中声明最低 macOS 版本；生成应用包需要项目根目录中的 `CodexLimitWidget.icns` 和系统自带的 `codesign`。Apple 的 bundle 版本字段保持三段纯数字，完整信息版本保存在 `CFBundleGetInfoString` 和 `CodexInformationalVersion` 中。
 
 ## 日志
 

@@ -1,8 +1,7 @@
-using System.Reflection;
 using CodexLimitWidget.Core;
 using CodexLimitWidget.Core.Resources;
 
-var version = Assembly.GetEntryAssembly()?.GetName().Version?.ToString(3) ?? "?.?.?";
+var version = ApplicationVersion.FromAssembly(typeof(Program).Assembly);
 var language = ParseLanguage(args);
 if (language is not null && !Localization.TrySetCulture(language))
 {

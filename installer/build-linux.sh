@@ -4,6 +4,7 @@ set -euo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 project="$root/CodexLimitWidget.App/CodexLimitWidget.App.csproj"
+source "$root/installer/versioning.sh"
 
 choose() {
   local prompt="$1" default="$2" answer
@@ -40,7 +41,10 @@ output_choice="$(choose '输入 1/2/3' 3)"
 case "$output_choice" in 1|2|3) ;; *) echo '无效的输出选择。' >&2; exit 2 ;; esac
 
 version="$(choose '版本号' "$(sed -n 's:.*<Version>\(.*\)</Version>.*:\1:p' "$root/Directory.Build.props" | head -n1)")"
-[[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo '版本号必须为 x.y.z。' >&2; exit 2; }
+resolve_codex_version "$version" "${INFORMATIONAL_VERSION:-}"
+version="$CODEX_VERSION"
+product_version="$CODEX_PRODUCT_VERSION"
+informational_version="$CODEX_INFORMATIONAL_VERSION"
 command -v dotnet >/dev/null || { echo '未找到 dotnet。' >&2; exit 1; }
 if [[ "$output_choice" != 1 ]]; then command -v dpkg-deb >/dev/null || { echo '构建 DEB 需要 dpkg-deb。' >&2; exit 1; }; fi
 
@@ -49,7 +53,9 @@ package="$root/dist/codex-limit-widget_${version}_${deb_arch}"
 rm -rf "$stage" "$package" "$package.deb"
 
 dotnet publish "$project" -c Release -f "$framework" -r "$rid" --self-contained true \
-  -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:Version="$version" -o "$stage"
+  -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true \
+  -p:Version="$version" -p:InformationalVersion="$informational_version" \
+  -p:AssemblyVersion="$product_version" -p:FileVersion="$product_version" -o "$stage"
 echo "二进制已生成：$stage/CodexLimitWidget.App"
 
 if [[ "$output_choice" != 1 ]]; then

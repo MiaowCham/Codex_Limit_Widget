@@ -2,6 +2,9 @@
 #ifndef MyAppVersion
   #define MyAppVersion "1.0.0"
 #endif
+#ifndef MyAppProductVersion
+  #define MyAppProductVersion "1.0.0.0"
+#endif
 #define MyAppPublisher "CodexLimitWidget Contributors"
 #define MyAppExeName "CodexLimitWidget.App.exe"
 #define MyAppSourceDir "..\publish\win-x64\app"
@@ -18,7 +21,7 @@ Name: "japanese"; MessagesFile: "Languages\Japanese.isl"
 AppId={{D64D2C37-0B3E-4A5C-9F0C-0E8A0C5D1987}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
-VersionInfoVersion={#MyAppVersion}.0
+VersionInfoVersion={#MyAppProductVersion}
 AppVerName={#MyAppName} {#MyAppVersion}
 AppPublisher={#MyAppPublisher}
 DefaultDirName={autopf}\{#MyAppName}
