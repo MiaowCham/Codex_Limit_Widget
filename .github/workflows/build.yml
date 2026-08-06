@@ -11,7 +11,7 @@ on:
       version:
         description: "打包版本号（x.y.z[-suffix] 或 x.y.z.w[-suffix]；可选 v 前缀）"
         required: true
-        default: "1.0.0"
+        default: "1.0.1"
         type: string
 
 jobs:

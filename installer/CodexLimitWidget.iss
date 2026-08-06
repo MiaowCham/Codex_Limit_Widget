@@ -1,9 +1,9 @@
 #define MyAppName "Codex Limit Widget"
 #ifndef MyAppVersion
-  #define MyAppVersion "1.0.0"
+  #define MyAppVersion "1.0.1"
 #endif
 #ifndef MyAppProductVersion
-  #define MyAppProductVersion "1.0.0.0"
+  #define MyAppProductVersion "1.0.1.0"
 #endif
 #ifndef MyAppSourceDir
   #define MyAppSourceDir "..\publish\win-x64\self-contained"
