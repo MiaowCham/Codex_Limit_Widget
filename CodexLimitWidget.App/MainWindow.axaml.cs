@@ -20,6 +20,7 @@ public partial class MainWindow : Window
     private readonly MainWindowViewModel _viewModel;
     private readonly DispatcherTimer _timer;
     private readonly CancellationTokenSource _closing = new();
+    private bool _cliInstallPromptShown;
     private const uint WmNcLeftButtonDown = 0x00A1;
     private const nuint HtCaption = 2;
     private const string TiboProfileUrl = "https://x.com/thsottiaux";
@@ -53,8 +54,60 @@ public partial class MainWindow : Window
     }
     private async Task RefreshInBackgroundAsync()
     {
-        try { await _viewModel.RefreshAsync(_closing.Token); }
+        try
+        {
+            await _viewModel.RefreshAsync(_closing.Token);
+            if (_viewModel.IsCliMissing && !_cliInstallPromptShown)
+            {
+                _cliInstallPromptShown = true;
+                await PromptToInstallCliAsync();
+            }
+        }
         catch (Exception exception) { _logger.Error("Unexpected window refresh failure", exception); }
+    }
+    private async Task PromptToInstallCliAsync()
+    {
+        var dialog = new Window
+        {
+            Width = 390, Height = 170, CanResize = false, WindowStartupLocation = WindowStartupLocation.CenterOwner,
+            Title = Strings.Get("CodexCliMissing"), Content = new StackPanel
+            {
+                Spacing = 16, Margin = new Avalonia.Thickness(22),
+                Children =
+                {
+                    new TextBlock { Text = Strings.Get("InstallCodexCliPrompt"), TextWrapping = Avalonia.Media.TextWrapping.Wrap },
+                    new StackPanel
+                    {
+                        Orientation = Avalonia.Layout.Orientation.Horizontal, HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right, Spacing = 10,
+                        Children =
+                        {
+                            new Button { Content = Strings.Get("InstallCodexCli"), IsDefault = true, Padding = new Avalonia.Thickness(14, 7) },
+                            new Button { Content = Strings.Get("Cancel"), IsCancel = true, Padding = new Avalonia.Thickness(14, 7) }
+                        }
+                    }
+                }
+            }
+        };
+        var buttons = ((StackPanel)((StackPanel)dialog.Content!).Children[1]).Children;
+        ((Button)buttons[0]).Click += (_, _) => dialog.Close(true);
+        ((Button)buttons[1]).Click += (_, _) => dialog.Close(false);
+        var install = await dialog.ShowDialog<bool>(this);
+        if (install) await InstallCodexCliAsync();
+    }
+    private async Task InstallCodexCliAsync()
+    {
+        var startInfo = OperatingSystem.IsWindows()
+            ? new ProcessStartInfo("powershell", "-ExecutionPolicy ByPass -Command \"irm https://chatgpt.com/codex/install.ps1 | iex\"")
+            : new ProcessStartInfo("sh", "-c \"curl -fsSL https://chatgpt.com/codex/install.sh | sh\"");
+        startInfo.UseShellExecute = false; startInfo.CreateNoWindow = true; startInfo.RedirectStandardOutput = true; startInfo.RedirectStandardError = true;
+        try
+        {
+            using var process = Process.Start(startInfo) ?? throw new InvalidOperationException(Strings.Get("CliInstallFailed"));
+            await process.WaitForExitAsync(_closing.Token);
+            if (process.ExitCode != 0) throw new InvalidOperationException(Strings.Get("CliInstallFailed"));
+            QueueRefresh("CLI installation");
+        }
+        catch (Exception exception) { _logger.Error("Codex CLI installation", exception); _cliInstallPromptShown = false; }
     }
     private void Refresh_Click(object? sender, RoutedEventArgs e) => QueueRefresh("button");
     private void Pin_Click(object? sender, RoutedEventArgs e)

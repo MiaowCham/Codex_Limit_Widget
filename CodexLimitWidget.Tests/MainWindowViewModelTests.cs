@@ -56,6 +56,19 @@ public sealed class MainWindowViewModelTests
         await vm.RefreshAsync(CancellationToken.None);
         Assert.Equal(Strings.Format("RemainingPercent", 90), vm.Headline); Assert.Equal("010", vm.Badge); Assert.Equal(10, vm.Usage); Assert.Empty(vm.ErrorMessage);
     }
+    [Fact]
+    public async Task LunaReserveDisplaysRemainingAmountInYellowMode()
+    {
+        var reserve = new ReserveLimitSnapshot("luna_reserve", "Luna Reserve Weekly", new(35, 10080, null), RateLimitWindow.Empty);
+        var snapshot = new RateLimitSnapshot("codex", null, "pro", "primary", null, new(100, 300, null), RateLimitWindow.Empty, null, reserve);
+        var vm = new MainWindowViewModel(new FakeProvider(snapshot));
+        await vm.RefreshAsync(CancellationToken.None);
+        Assert.Equal(Strings.Format("RemainingPercent", 65), vm.Headline);
+        Assert.Equal("065", vm.Badge);
+        Assert.Equal(65, vm.Usage);
+        Assert.Equal(Strings.Format("TemporaryLimit", "Luna Reserve Weekly"), vm.Summary);
+        Assert.Contains("65", vm.Countdown);
+    }
     private static RateLimitSnapshot CreateSnapshot(int usedPercent = 25) => new("codex", null, "pro", null, null, new(usedPercent, 300, null), new(50, null, null), null);
     private sealed class FakeProvider(RateLimitSnapshot snapshot) : IRateLimitProvider
     {

@@ -8,6 +8,27 @@ public interface IAppServerProcessFactory
     Process Start();
 }
 
+/// <summary>
+/// Provides the localized error text and the machine-readable marker used to detect that the
+/// Codex CLI is unavailable, so every caller agrees on the same signal.
+/// </summary>
+public static class CodexCliErrors
+{
+    /// <summary>Marker embedded in every "CLI unavailable" message.</summary>
+    public const string MissingMarker = "Codex CLI";
+
+    /// <summary>Locally installed CLI executables that <see cref="DefaultAppServerProcessFactory"/> can launch.</summary>
+    public static IReadOnlyList<string> KnownCommandNames { get; } = ["codex.exe", "codex.cmd", "codex"];
+
+    /// <summary>Error message used when the Codex CLI cannot be found or started.</summary>
+    public static string Missing => Strings.Get("CodexCliNotFound");
+
+    /// <summary>True when the exception describes a missing/unstartable Codex CLI.</summary>
+    public static bool IsMissingCli(Exception exception) =>
+        exception.Message.Contains(MissingMarker, StringComparison.OrdinalIgnoreCase)
+        || (exception.InnerException is { } inner && inner.Message.Contains(MissingMarker, StringComparison.OrdinalIgnoreCase));
+}
+
 public sealed class DefaultAppServerProcessFactory : IAppServerProcessFactory
 {
     public Process Start()

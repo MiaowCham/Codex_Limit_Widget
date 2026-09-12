@@ -20,6 +20,9 @@
   <data name="StatusCredits" xml:space="preserve"><value>Credits: {0}</value></data>
   <data name="StatusReached" xml:space="preserve"><value>Status: {0}</value></data>
   <data name="StatusResetCredits" xml:space="preserve"><value>Available reset credits: {0}</value></data>
+  <data name="StatusReserveUsage" xml:space="preserve"><value>{0}: {1}% used / {2}% remaining</value></data>
+  <data name="StatusReserveReset" xml:space="preserve"><value>Reserve reset: {0}</value></data>
+  <data name="StatusReserveActive" xml:space="preserve"><value>Reserve active: {0}% remaining</value></data>
   <data name="Unlimited" xml:space="preserve"><value>Unlimited</value></data>
   <data name="ReadFailed" xml:space="preserve"><value>Read failed: {0}</value></data>
   <data name="CliHelp" xml:space="preserve"><value>CodexLimitWidget {0}
@@ -46,6 +49,10 @@ Usage:
   <data name="Plan" xml:space="preserve"><value>PLAN {0}</value></data>
   <data name="ResetAt" xml:space="preserve"><value>Reset in {0}</value></data>
   <data name="WeeklyLimit" xml:space="preserve"><value>Weekly limit {0}%, {1}</value></data>
+  <data name="PrimaryLimit" xml:space="preserve"><value>Primary limit</value></data>
+  <data name="LunaReserveLimit" xml:space="preserve"><value>Luna Reserve Weekly</value></data>
+  <data name="TemporaryLimit" xml:space="preserve"><value>Luna temporary quota</value></data>
+  <data name="TemporaryLimitRemaining" xml:space="preserve"><value>Luna temporary quota {0}% left, {1}</value></data>
   <data name="FiveHourLimitNotFound" xml:space="preserve"><value>No 5-hour limit found</value></data>
   <data name="OpenTiboXProfile" xml:space="preserve"><value>View Tibo's profile on X</value></data>
   <data name="Details" xml:space="preserve"><value>Credits {0} | Reset credits {1}</value></data>
@@ -53,7 +60,9 @@ Usage:
   <data name="ReadFailure" xml:space="preserve"><value>Read failed</value></data>
   <data name="CodexCliMissing" xml:space="preserve"><value>Codex CLI not found</value></data>
   <data name="InstallCodexCli" xml:space="preserve"><value>Please install Codex CLI first</value></data>
-  <data name="LinuxIdeCliNote" xml:space="preserve"><value>Linux IDE extensions do not automatically provide the CLI</value></data>
+  <data name="InstallCodexCliPrompt" xml:space="preserve"><value>Codex CLI is required to read usage limits. Install it now?</value></data>
+  <data name="Cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="CliInstallFailed" xml:space="preserve"><value>Codex CLI installation failed.</value></data>
   <data name="ResetTimeWithDateFormat" xml:space="preserve"><value>MM/dd HH:mm</value></data>
   <data name="ResetTimeFormat" xml:space="preserve"><value>HH:mm</value></data>
   <data name="TooltipPrimaryUsage" xml:space="preserve"><value>Primary-window usage</value></data>

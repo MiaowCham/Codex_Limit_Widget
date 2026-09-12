@@ -20,6 +20,9 @@
   <data name="StatusCredits" xml:space="preserve"><value>Credits: {0}</value></data>
   <data name="StatusReached" xml:space="preserve"><value>状態: {0}</value></data>
   <data name="StatusResetCredits" xml:space="preserve"><value>リセット枠: {0}</value></data>
+  <data name="StatusReserveUsage" xml:space="preserve"><value>{0}: 使用 {1}% / 残り {2}%</value></data>
+  <data name="StatusReserveReset" xml:space="preserve"><value>一時枠のリセット: {0}</value></data>
+  <data name="StatusReserveActive" xml:space="preserve"><value>一時枠を使用中: 残り {0}%</value></data>
   <data name="Unlimited" xml:space="preserve"><value>無制限</value></data>
   <data name="ReadFailed" xml:space="preserve"><value>読込失敗: {0}</value></data>
   <data name="CliHelp" xml:space="preserve"><value>CodexLimitWidget {0}
@@ -46,6 +49,10 @@
   <data name="Plan" xml:space="preserve"><value>PLAN {0}</value></data>
   <data name="ResetAt" xml:space="preserve"><value>{0} にリセット</value></data>
   <data name="WeeklyLimit" xml:space="preserve"><value>週 {0}% · {1}</value></data>
+  <data name="PrimaryLimit" xml:space="preserve"><value>通常の制限</value></data>
+  <data name="LunaReserveLimit" xml:space="preserve"><value>Luna 一時週間枠</value></data>
+  <data name="TemporaryLimit" xml:space="preserve"><value>Luna 一時枠</value></data>
+  <data name="TemporaryLimitRemaining" xml:space="preserve"><value>Luna 一時枠 残り {0}% · {1}</value></data>
   <data name="FiveHourLimitNotFound" xml:space="preserve"><value>5 時間制限が見つかりません</value></data>
   <data name="OpenTiboXProfile" xml:space="preserve"><value>Tibo の X プロフィールを見る</value></data>
   <data name="Details" xml:space="preserve"><value>Credits {0} | リセット枠 {1}</value></data>
@@ -53,7 +60,9 @@
   <data name="ReadFailure" xml:space="preserve"><value>読込失敗</value></data>
   <data name="CodexCliMissing" xml:space="preserve"><value>Codex CLI がありません</value></data>
   <data name="InstallCodexCli" xml:space="preserve"><value>Codex CLI をインストールしてください</value></data>
-  <data name="LinuxIdeCliNote" xml:space="preserve"><value>Linux IDE 拡張は CLI を提供しません</value></data>
+  <data name="InstallCodexCliPrompt" xml:space="preserve"><value>使用量を読むには Codex CLI が必要です。今すぐインストールしますか？</value></data>
+  <data name="Cancel" xml:space="preserve"><value>キャンセル</value></data>
+  <data name="CliInstallFailed" xml:space="preserve"><value>Codex CLI のインストールに失敗しました。</value></data>
   <data name="ResetTimeWithDateFormat" xml:space="preserve"><value>M/d HH:mm</value></data>
   <data name="ResetTimeFormat" xml:space="preserve"><value>HH:mm</value></data>
   <data name="TooltipPrimaryUsage" xml:space="preserve"><value>メインの使用率</value></data>

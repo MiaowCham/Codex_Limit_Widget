@@ -48,4 +48,21 @@ public sealed class RateLimitSnapshotTests
         Assert.Null(snapshot.Primary.UsedPercent);
         Assert.Null(snapshot.Primary.ResetsAt);
     }
+
+    [Fact]
+    public void ActivatesLunaReserveWhenCodexQuotaIsExhausted()
+    {
+        using var json = JsonDocument.Parse("""
+        {
+          "rateLimitsByLimitId": {
+            "codex": { "limitId": "codex", "primary": { "usedPercent": 100, "windowDurationMins": 300 } },
+            "luna_reserve": { "limitId": "luna_reserve", "limitName": "Luna Reserve Weekly", "primary": { "usedPercent": 35, "windowDurationMins": 10080 } }
+          }
+        }
+        """);
+        var snapshot = RateLimitSnapshot.FromJson(json.RootElement);
+        Assert.True(snapshot.IsReserveActive);
+        Assert.Equal(65, snapshot.ActiveRemainingPercent);
+        Assert.Equal("Luna Reserve Weekly", snapshot.ActiveDisplayName);
+    }
 }

@@ -29,6 +29,7 @@ public sealed class MainWindowViewModel : ViewModelBase
     public bool ShowFiveHourLimitNotice { get => _showFiveHourLimitNotice; private set => SetProperty(ref _showFiveHourLimitNotice, value); }
     public IBrush BadgeBrush { get => _badgeBrush; private set => SetProperty(ref _badgeBrush, value); }
     public IBrush UsageBrush { get => _usageBrush; private set => SetProperty(ref _usageBrush, value); }
+    public bool IsCliMissing { get; private set; }
     public bool IsRefreshing => Volatile.Read(ref _refreshing) != 0;
     public async Task RefreshAsync(CancellationToken cancellationToken)
     {
@@ -73,18 +74,26 @@ public sealed class MainWindowViewModel : ViewModelBase
         Task.Run(() => _provider.ReadAsync(cancellationToken), cancellationToken);
     private void ApplySnapshot(RateLimitSnapshot snapshot)
     {
-        Headline = snapshot.RemainingPercent is { } remaining ? Strings.Format("RemainingPercent", remaining) : Strings.Get("LimitUnknown");
+        var activeRemaining = snapshot.ActiveRemainingPercent;
+        var reserveActive = snapshot.IsReserveActive;
+        Headline = activeRemaining is { } remaining ? Strings.Format("RemainingPercent", remaining) : Strings.Get("LimitUnknown");
         Plan = Strings.Format("Plan", (snapshot.PlanType ?? "unknown").ToUpperInvariant()); Usage = snapshot.Primary.UsedPercent ?? 0;
-        Badge = snapshot.Primary.UsedPercent?.ToString("D3") ?? "---";
-        BadgeBrush = UsageBrush = (snapshot.Primary.UsedPercent ?? 0) switch { >= 85 => Brushes.LightCoral, >= 60 => Brushes.Gold, _ => Brushes.LightGreen };
-        Summary = Strings.Format("ResetAt", FormatResetMoment(snapshot.Primary.ResetsAt, false));
+        Usage = reserveActive ? activeRemaining ?? 0 : snapshot.Primary.UsedPercent ?? 0;
+        Badge = activeRemaining?.ToString("D3") ?? "---";
+        BadgeBrush = UsageBrush = reserveActive ? Brushes.Gold : (snapshot.Primary.UsedPercent ?? 0) switch { >= 85 => Brushes.LightCoral, >= 60 => Brushes.Gold, _ => Brushes.LightGreen };
+        var activeReset = snapshot.IsReserveActive ? snapshot.Reserve?.Primary.ResetsAt : snapshot.Primary.ResetsAt;
+        Summary = reserveActive
+            ? Strings.Format("TemporaryLimit", snapshot.ActiveDisplayName)
+            : Strings.Format("ResetAt", FormatResetMoment(activeReset, false));
         ShowWeeklyLimit = snapshot.HasFiveHourLimit;
         ShowFiveHourLimitNotice = !snapshot.HasFiveHourLimit;
-        Countdown = snapshot.HasFiveHourLimit
+        Countdown = reserveActive
+            ? Strings.Format("TemporaryLimitRemaining", activeRemaining?.ToString() ?? "--", FormatResetMoment(activeReset, true))
+            : snapshot.HasFiveHourLimit
             ? Strings.Format("WeeklyLimit", snapshot.Secondary.UsedPercent?.ToString() ?? "--", FormatResetMoment(snapshot.Secondary.ResetsAt, true))
             : Strings.Get("FiveHourLimitNotFound");
         Details = Strings.Format("Details", snapshot.Credits?.Unlimited == true ? Strings.Get("Unlimited") : snapshot.Credits?.Balance ?? "0", snapshot.RateLimitResetCredits?.ToString() ?? "0");
-        Updated = Strings.Format("UpdatedAt", DateTime.Now.ToString("T")); ErrorMessage = "";
+        Updated = Strings.Format("UpdatedAt", DateTime.Now.ToString("T")); ErrorMessage = ""; IsCliMissing = false;
         _lastSuccessfulUsedPercent = snapshot.Primary.UsedPercent;
         _logger.Info($"UI snapshot applied; primaryUsed={snapshot.Primary.UsedPercent?.ToString() ?? "unknown"}%, secondaryUsed={snapshot.Secondary.UsedPercent?.ToString() ?? "unknown"}%. ");
     }
@@ -93,11 +102,12 @@ public sealed class MainWindowViewModel : ViewModelBase
         Headline = Strings.Get("ReadFailure"); Badge = "!"; BadgeBrush = UsageBrush = Brushes.LightCoral; ErrorMessage = exception.Message; Updated = Strings.Get("RefreshFailed");
         if (exception.Message.Contains("Codex CLI", StringComparison.OrdinalIgnoreCase))
         {
+            IsCliMissing = true;
             ShowWeeklyLimit = true;
             ShowFiveHourLimitNotice = false;
             Summary = Strings.Get("CodexCliMissing");
             Countdown = Strings.Get("InstallCodexCli");
-            Details = Strings.Get("LinuxIdeCliNote");
+            Details = Strings.Get("InstallCodexCli");
         }
     }
     private static string FormatResetMoment(long? epochSeconds, bool includeDate) => epochSeconds is null or <= 0 ? Strings.Unknown : (includeDate || DateTimeOffset.FromUnixTimeSeconds(epochSeconds.Value).LocalDateTime.Date != DateTime.Today ? DateTimeOffset.FromUnixTimeSeconds(epochSeconds.Value).LocalDateTime.ToString(Strings.Get("ResetTimeWithDateFormat")) : DateTimeOffset.FromUnixTimeSeconds(epochSeconds.Value).LocalDateTime.ToString(Strings.Get("ResetTimeFormat")));

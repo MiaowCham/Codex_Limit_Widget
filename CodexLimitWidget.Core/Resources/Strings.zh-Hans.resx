@@ -20,6 +20,9 @@
   <data name="StatusCredits" xml:space="preserve"><value>Credits: {0}</value></data>
   <data name="StatusReached" xml:space="preserve"><value>状态: {0}</value></data>
   <data name="StatusResetCredits" xml:space="preserve"><value>可用重置额度: {0}</value></data>
+  <data name="StatusReserveUsage" xml:space="preserve"><value>{0}: 已用 {1}% / 剩余 {2}%</value></data>
+  <data name="StatusReserveReset" xml:space="preserve"><value>临时额度重置: {0}</value></data>
+  <data name="StatusReserveActive" xml:space="preserve"><value>临时额度已启用: 剩余 {0}%</value></data>
   <data name="Unlimited" xml:space="preserve"><value>无限</value></data>
   <data name="ReadFailed" xml:space="preserve"><value>读取失败: {0}</value></data>
   <data name="CliHelp" xml:space="preserve"><value>CodexLimitWidget {0}
@@ -46,6 +49,10 @@
   <data name="Plan" xml:space="preserve"><value>PLAN {0}</value></data>
   <data name="ResetAt" xml:space="preserve"><value>将于 {0} 重置</value></data>
   <data name="WeeklyLimit" xml:space="preserve"><value>周限额 {0}% · {1}</value></data>
+  <data name="PrimaryLimit" xml:space="preserve"><value>正常额度</value></data>
+  <data name="LunaReserveLimit" xml:space="preserve"><value>Luna 临时周额度</value></data>
+  <data name="TemporaryLimit" xml:space="preserve"><value>Luna 临时额度</value></data>
+  <data name="TemporaryLimitRemaining" xml:space="preserve"><value>Luna 临时额度 剩余 {0}% · {1}</value></data>
   <data name="FiveHourLimitNotFound" xml:space="preserve"><value>未发现 5 小时限额</value></data>
   <data name="OpenTiboXProfile" xml:space="preserve"><value>前往查看 Tibo 的 X 账号</value></data>
   <data name="Details" xml:space="preserve"><value>Credits {0} | 重置额度 {1}</value></data>
@@ -53,7 +60,9 @@
   <data name="ReadFailure" xml:space="preserve"><value>读取失败</value></data>
   <data name="CodexCliMissing" xml:space="preserve"><value>未找到 Codex CLI</value></data>
   <data name="InstallCodexCli" xml:space="preserve"><value>请先安装 Codex CLI</value></data>
-  <data name="LinuxIdeCliNote" xml:space="preserve"><value>Linux IDE 插件不会自动提供 CLI</value></data>
+  <data name="InstallCodexCliPrompt" xml:space="preserve"><value>读取额度需要 Codex CLI。现在安装吗？</value></data>
+  <data name="Cancel" xml:space="preserve"><value>取消</value></data>
+  <data name="CliInstallFailed" xml:space="preserve"><value>Codex CLI 安装失败。</value></data>
   <data name="ResetTimeWithDateFormat" xml:space="preserve"><value>M月d日 HH:mm</value></data>
   <data name="ResetTimeFormat" xml:space="preserve"><value>HH:mm</value></data>
   <data name="TooltipPrimaryUsage" xml:space="preserve"><value>主窗口已用比例</value></data>
