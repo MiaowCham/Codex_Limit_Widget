@@ -79,7 +79,7 @@ public sealed class MainWindowViewModel : ViewModelBase
         Headline = activeRemaining is { } remaining ? Strings.Format("RemainingPercent", remaining) : Strings.Get("LimitUnknown");
         Plan = Strings.Format("Plan", (snapshot.PlanType ?? "unknown").ToUpperInvariant()); Usage = snapshot.Primary.UsedPercent ?? 0;
         Usage = reserveActive ? activeRemaining ?? 0 : snapshot.Primary.UsedPercent ?? 0;
-        Badge = activeRemaining?.ToString("D3") ?? "---";
+        Badge = (reserveActive ? activeRemaining : snapshot.Primary.UsedPercent)?.ToString("D3") ?? "---";
         BadgeBrush = UsageBrush = reserveActive ? Brushes.Gold : (snapshot.Primary.UsedPercent ?? 0) switch { >= 85 => Brushes.LightCoral, >= 60 => Brushes.Gold, _ => Brushes.LightGreen };
         var activeReset = snapshot.IsReserveActive ? snapshot.Reserve?.Primary.ResetsAt : snapshot.Primary.ResetsAt;
         Summary = reserveActive
