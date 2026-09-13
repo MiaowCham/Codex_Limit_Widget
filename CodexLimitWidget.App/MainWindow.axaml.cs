@@ -69,27 +69,36 @@ public partial class MainWindow : Window
     {
         var dialog = new Window
         {
-            Width = 390, Height = 170, CanResize = false, WindowStartupLocation = WindowStartupLocation.CenterOwner,
-            Background = Brush.Parse("#FA121E2E"), Foreground = Brushes.White,
-            Title = Strings.Get("CodexCliMissing"), Content = new StackPanel
+            Width = 390, Height = 190, CanResize = false, WindowStartupLocation = WindowStartupLocation.CenterOwner,
+            Background = Brushes.Transparent, SystemDecorations = SystemDecorations.None,
+            Title = Strings.Get("CodexCliMissing"), Content = new Border
             {
-                Spacing = 16, Margin = new Avalonia.Thickness(22),
-                Children =
+                Background = Brush.Parse("#FA121E2E"), BorderBrush = Brush.Parse("#2A384E"),
+                BorderThickness = new Avalonia.Thickness(1), CornerRadius = new Avalonia.CornerRadius(10),
+                Padding = new Avalonia.Thickness(20, 16, 20, 14),
+                Child = new Grid
                 {
-                    new TextBlock { Text = Strings.Get("InstallCodexCliPrompt"), TextWrapping = Avalonia.Media.TextWrapping.Wrap, Foreground = Brushes.White },
-                    new StackPanel
+                    RowDefinitions = new RowDefinitions("Auto,*,Auto"),
+                    Children =
                     {
-                        Orientation = Avalonia.Layout.Orientation.Horizontal, HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right, Spacing = 10,
-                        Children =
+                        new TextBlock { Text = Strings.Get("CodexCliMissing"), Foreground = Brushes.White, FontSize = 16, FontWeight = Avalonia.Media.FontWeight.SemiBold },
+                        new TextBlock { Text = Strings.Get("InstallCodexCliPrompt"), TextWrapping = Avalonia.Media.TextWrapping.Wrap, Foreground = Brush.Parse("#CBD5E1"), FontSize = 12, Margin = new Avalonia.Thickness(0, 12, 0, 14) },
+                        new StackPanel
                         {
-                            new Button { Content = Strings.Get("OpenInstallPage"), IsDefault = true, Padding = new Avalonia.Thickness(14, 7) },
-                            new Button { Content = Strings.Get("Cancel"), IsCancel = true, Padding = new Avalonia.Thickness(14, 7) }
+                            Grid.Row = 2, Orientation = Avalonia.Layout.Orientation.Horizontal,
+                            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right, Spacing = 8,
+                            Children =
+                            {
+                                new Button { Name = "InstallButton", Content = Strings.Get("OpenInstallPage"), IsDefault = true, Padding = new Avalonia.Thickness(13, 7), Background = Brush.Parse("#2563EB"), Foreground = Brushes.White, BorderThickness = new Avalonia.Thickness(0) },
+                                new Button { Name = "CancelButton", Content = Strings.Get("Cancel"), IsCancel = true, Padding = new Avalonia.Thickness(13, 7), Background = Brush.Parse("#1E293B"), Foreground = Brush.Parse("#CBD5E1"), BorderThickness = new Avalonia.Thickness(0) }
+                            }
                         }
                     }
                 }
             }
         };
-        var buttons = ((StackPanel)((StackPanel)dialog.Content!).Children[1]).Children;
+        var contentGrid = (Grid)((Border)dialog.Content!).Child!;
+        var buttons = ((StackPanel)contentGrid.Children[2]).Children;
         ((Button)buttons[0]).Click += (_, _) => dialog.Close(true);
         ((Button)buttons[1]).Click += (_, _) => dialog.Close(false);
         var install = await dialog.ShowDialog<bool>(this);
