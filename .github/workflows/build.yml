@@ -47,7 +47,6 @@ jobs:
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     needs: verify
     runs-on: windows-latest
-    env:
     steps:
       - uses: actions/checkout@v6
         with:
@@ -91,7 +90,6 @@ jobs:
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     needs: verify
     runs-on: ubuntu-latest
-    env:
     steps:
       - uses: actions/checkout@v6
         with:
@@ -133,7 +131,6 @@ jobs:
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     needs: verify
     runs-on: macos-latest
-    env:
     strategy:
       fail-fast: false
       matrix:
