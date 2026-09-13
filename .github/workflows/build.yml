@@ -24,6 +24,8 @@ jobs:
         os: [windows-latest, ubuntu-latest, macos-latest]
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
       - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: "10.0.x"
@@ -31,7 +33,9 @@ jobs:
         shell: pwsh
         run: |
           . ./installer/Versioning.ps1
+          $tag = git tag --sort=-version:refname | Select-Object -First 1
           $stored = Get-CodexStoredVersion -RepositoryRoot $env:GITHUB_WORKSPACE
+          if ($tag) { $stored = Resolve-CodexVersion -Version $tag }
           $ciVersion = Add-CodexCommitHash -InformationalVersion $stored.InformationalVersion -CommitHash $env:GITHUB_SHA
           "CI_INFORMATIONAL_VERSION=$ciVersion" >> $env:GITHUB_ENV
       - name: Build
@@ -40,13 +44,14 @@ jobs:
       - run: dotnet test CodexLimitWidget.slnx -c Release --no-build
 
   package-windows:
-    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     needs: verify
     runs-on: windows-latest
     env:
-      PACKAGE_VERSION: ${{ github.event_name == 'workflow_dispatch' && inputs.version || github.ref_name }}
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
       - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: "10.0.x"
@@ -54,7 +59,9 @@ jobs:
         shell: pwsh
         run: |
           . ./installer/Versioning.ps1
-          $resolved = Resolve-CodexVersion -Version $env:PACKAGE_VERSION
+          $version = if ('${{ github.event_name }}' -eq 'workflow_dispatch') { '${{ inputs.version }}' } else { git tag --sort=-version:refname | Select-Object -First 1 }
+          if (-not $version) { $version = (Get-CodexStoredVersion -RepositoryRoot $env:GITHUB_WORKSPACE).Version }
+          $resolved = Resolve-CodexVersion -Version $version
           $ciVersion = Add-CodexCommitHash -InformationalVersion $resolved.InformationalVersion -CommitHash $env:GITHUB_SHA
           "PACKAGE_VERSION=$($resolved.Version)" >> $env:GITHUB_ENV
           "CI_INFORMATIONAL_VERSION=$ciVersion" >> $env:GITHUB_ENV
@@ -81,13 +88,14 @@ jobs:
           if-no-files-found: error
 
   package-linux:
-    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     needs: verify
     runs-on: ubuntu-latest
     env:
-      PACKAGE_VERSION: ${{ github.event_name == 'workflow_dispatch' && inputs.version || github.ref_name }}
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
       - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: "10.0.x"
@@ -95,7 +103,9 @@ jobs:
         shell: pwsh
         run: |
           . ./installer/Versioning.ps1
-          $resolved = Resolve-CodexVersion -Version $env:PACKAGE_VERSION
+          $version = if ('${{ github.event_name }}' -eq 'workflow_dispatch') { '${{ inputs.version }}' } else { git tag --sort=-version:refname | Select-Object -First 1 }
+          if (-not $version) { $version = (Get-CodexStoredVersion -RepositoryRoot $env:GITHUB_WORKSPACE).Version }
+          $resolved = Resolve-CodexVersion -Version $version
           $ciVersion = Add-CodexCommitHash -InformationalVersion $resolved.InformationalVersion -CommitHash $env:GITHUB_SHA
           "PACKAGE_VERSION=$($resolved.Version)" >> $env:GITHUB_ENV
           "CI_INFORMATIONAL_VERSION=$ciVersion" >> $env:GITHUB_ENV
@@ -120,11 +130,10 @@ jobs:
           if-no-files-found: error
 
   package-macos:
-    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     needs: verify
     runs-on: macos-latest
     env:
-      PACKAGE_VERSION: ${{ github.event_name == 'workflow_dispatch' && inputs.version || github.ref_name }}
     strategy:
       fail-fast: false
       matrix:
@@ -135,6 +144,8 @@ jobs:
             architecture_choice: 2
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
       - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: "10.0.x"
@@ -142,7 +153,9 @@ jobs:
         shell: pwsh
         run: |
           . ./installer/Versioning.ps1
-          $resolved = Resolve-CodexVersion -Version $env:PACKAGE_VERSION
+          $version = if ('${{ github.event_name }}' -eq 'workflow_dispatch') { '${{ inputs.version }}' } else { git tag --sort=-version:refname | Select-Object -First 1 }
+          if (-not $version) { $version = (Get-CodexStoredVersion -RepositoryRoot $env:GITHUB_WORKSPACE).Version }
+          $resolved = Resolve-CodexVersion -Version $version
           $ciVersion = Add-CodexCommitHash -InformationalVersion $resolved.InformationalVersion -CommitHash $env:GITHUB_SHA
           "PACKAGE_VERSION=$($resolved.Version)" >> $env:GITHUB_ENV
           "CI_INFORMATIONAL_VERSION=$ciVersion" >> $env:GITHUB_ENV

@@ -70,7 +70,7 @@ public partial class MainWindow : Window
         var dialog = new Window
         {
             Width = 390, Height = 190, CanResize = false, WindowStartupLocation = WindowStartupLocation.CenterOwner,
-            Background = Brushes.Transparent, SystemDecorations = SystemDecorations.None,
+            Background = Brushes.Transparent, WindowDecorations = Avalonia.Controls.WindowDecorations.None,
             Title = Strings.Get("CodexCliMissing"), Content = new Border
             {
                 Background = Brush.Parse("#FA121E2E"), BorderBrush = Brush.Parse("#2A384E"),
@@ -85,7 +85,7 @@ public partial class MainWindow : Window
                         new TextBlock { Text = Strings.Get("InstallCodexCliPrompt"), TextWrapping = Avalonia.Media.TextWrapping.Wrap, Foreground = Brush.Parse("#CBD5E1"), FontSize = 12, Margin = new Avalonia.Thickness(0, 12, 0, 14) },
                         new StackPanel
                         {
-                            Grid.Row = 2, Orientation = Avalonia.Layout.Orientation.Horizontal,
+                            Orientation = Avalonia.Layout.Orientation.Horizontal,
                             HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right, Spacing = 8,
                             Children =
                             {
@@ -98,6 +98,7 @@ public partial class MainWindow : Window
             }
         };
         var contentGrid = (Grid)((Border)dialog.Content!).Child!;
+        Grid.SetRow((Control)contentGrid.Children[2], 2);
         var buttons = ((StackPanel)contentGrid.Children[2]).Children;
         ((Button)buttons[0]).Click += (_, _) => dialog.Close(true);
         ((Button)buttons[1]).Click += (_, _) => dialog.Close(false);
