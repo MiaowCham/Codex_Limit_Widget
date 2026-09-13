@@ -53,6 +53,7 @@
   <data name="LunaReserveLimit" xml:space="preserve"><value>Luna 临时周额度</value></data>
   <data name="TemporaryLimit" xml:space="preserve"><value>Luna 临时额度</value></data>
   <data name="TemporaryLimitRemaining" xml:space="preserve"><value>Luna 临时额度 剩余 {0}% · {1}</value></data>
+  <data name="AdvancedModelReset" xml:space="preserve"><value>高级模型重置 · {0}</value></data>
   <data name="FiveHourLimitNotFound" xml:space="preserve"><value>未发现 5 小时限额</value></data>
   <data name="OpenTiboXProfile" xml:space="preserve"><value>前往查看 Tibo 的 X 账号</value></data>
   <data name="Details" xml:space="preserve"><value>Credits {0} | 重置额度 {1}</value></data>
@@ -61,6 +62,8 @@
   <data name="CodexCliMissing" xml:space="preserve"><value>未找到 Codex CLI</value></data>
   <data name="InstallCodexCli" xml:space="preserve"><value>请先安装 Codex CLI</value></data>
   <data name="InstallCodexCliPrompt" xml:space="preserve"><value>读取额度需要 Codex CLI。现在安装吗？</value></data>
+  <data name="InstallCodexCliBrowser" xml:space="preserve"><value>将在浏览器中打开 Codex CLI 安装页面。</value></data>
+  <data name="OpenInstallPage" xml:space="preserve"><value>打开安装页面</value></data>
   <data name="Cancel" xml:space="preserve"><value>取消</value></data>
   <data name="CliInstallFailed" xml:space="preserve"><value>Codex CLI 安装失败。</value></data>
   <data name="ResetTimeWithDateFormat" xml:space="preserve"><value>M月d日 HH:mm</value></data>

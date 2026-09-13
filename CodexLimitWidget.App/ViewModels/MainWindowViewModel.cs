@@ -85,10 +85,10 @@ public sealed class MainWindowViewModel : ViewModelBase
         Summary = reserveActive
             ? Strings.Format("TemporaryLimit", snapshot.ActiveDisplayName)
             : Strings.Format("ResetAt", FormatResetMoment(activeReset, false));
-        ShowWeeklyLimit = snapshot.HasFiveHourLimit;
-        ShowFiveHourLimitNotice = !snapshot.HasFiveHourLimit;
+        ShowWeeklyLimit = snapshot.HasFiveHourLimit || reserveActive;
+        ShowFiveHourLimitNotice = !snapshot.HasFiveHourLimit && !reserveActive;
         Countdown = reserveActive
-            ? Strings.Format("TemporaryLimitRemaining", activeRemaining?.ToString() ?? "--", FormatResetMoment(activeReset, true))
+            ? Strings.Format("AdvancedModelReset", FormatResetMoment(snapshot.Secondary.ResetsAt, true))
             : snapshot.HasFiveHourLimit
             ? Strings.Format("WeeklyLimit", snapshot.Secondary.UsedPercent?.ToString() ?? "--", FormatResetMoment(snapshot.Secondary.ResetsAt, true))
             : Strings.Get("FiveHourLimitNotFound");
@@ -107,7 +107,7 @@ public sealed class MainWindowViewModel : ViewModelBase
             ShowFiveHourLimitNotice = false;
             Summary = Strings.Get("CodexCliMissing");
             Countdown = Strings.Get("InstallCodexCli");
-            Details = Strings.Get("InstallCodexCli");
+            Details = Strings.Get("InstallCodexCliBrowser");
         }
     }
     private static string FormatResetMoment(long? epochSeconds, bool includeDate) => epochSeconds is null or <= 0 ? Strings.Unknown : (includeDate || DateTimeOffset.FromUnixTimeSeconds(epochSeconds.Value).LocalDateTime.Date != DateTime.Today ? DateTimeOffset.FromUnixTimeSeconds(epochSeconds.Value).LocalDateTime.ToString(Strings.Get("ResetTimeWithDateFormat")) : DateTimeOffset.FromUnixTimeSeconds(epochSeconds.Value).LocalDateTime.ToString(Strings.Get("ResetTimeFormat")));
