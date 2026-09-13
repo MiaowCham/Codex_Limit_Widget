@@ -115,6 +115,17 @@ public sealed class DefaultAppServerProcessFactory : IAppServerProcessFactory
             var found = Path.Combine(directory, "codex.exe");
             if (File.Exists(found)) return (found, "app-server --listen stdio://");
         }
+        var desktopCandidates = new[]
+        {
+            Path.Combine(localApplicationData, "Programs", "Codex", "codex.exe"),
+            Path.Combine(localApplicationData, "Programs", "OpenAI", "Codex", "codex.exe"),
+            Path.Combine(programFiles, "Codex", "codex.exe"),
+            Path.Combine(programFiles, "OpenAI", "Codex", "codex.exe"),
+            Path.Combine(programFilesX86, "Codex", "codex.exe"),
+            Path.Combine(programFilesX86, "OpenAI", "Codex", "codex.exe")
+        };
+        var desktopCli = desktopCandidates.FirstOrDefault(File.Exists);
+        if (desktopCli is not null) return (desktopCli, "app-server --listen stdio://");
         return ("codex.exe", "app-server --listen stdio://");
     }
 

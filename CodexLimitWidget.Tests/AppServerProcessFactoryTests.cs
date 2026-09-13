@@ -21,6 +21,18 @@ public sealed class AppServerProcessFactoryTests : IDisposable
     }
 
     [Fact]
+    public void ResolvesDesktopCodexInstallationWhenItIsNotOnPath()
+    {
+        var root = Path.Combine(_root, "LocalAppData", "Programs", "Codex");
+        Directory.CreateDirectory(root);
+        File.WriteAllText(Path.Combine(root, "codex.exe"), "");
+        var command = DefaultAppServerProcessFactory.ResolveWindowsCodexCommand(
+            [], Path.Combine(_root, "AppData"), Path.Combine(_root, "LocalAppData"),
+            Path.Combine(_root, "ProgramFiles"), Path.Combine(_root, "ProgramFilesX86"));
+        Assert.Equal(Path.Combine(root, "codex.exe"), command.FileName);
+    }
+
+    [Fact]
     public void ResolvesStandardNpmDirectoryWhenGuiPathDoesNotContainIt()
     {
         var node = CreateFile("ProgramFiles", "nodejs", "node.exe");
