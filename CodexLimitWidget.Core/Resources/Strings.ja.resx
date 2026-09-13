@@ -66,6 +66,7 @@
   <data name="OpenInstallPage" xml:space="preserve"><value>インストールページを開く</value></data>
   <data name="Cancel" xml:space="preserve"><value>キャンセル</value></data>
   <data name="CliInstallFailed" xml:space="preserve"><value>Codex CLI のインストールに失敗しました。</value></data>
+  <data name="DebugOptions" xml:space="preserve"><value>デバッグ: --debug-cli-missing、--debug-skip-bundled-cli、--debug-cli-path &lt;パス&gt;</value></data>
   <data name="ResetTimeWithDateFormat" xml:space="preserve"><value>M/d HH:mm</value></data>
   <data name="ResetTimeFormat" xml:space="preserve"><value>HH:mm</value></data>
   <data name="TooltipPrimaryUsage" xml:space="preserve"><value>メインの使用率</value></data>

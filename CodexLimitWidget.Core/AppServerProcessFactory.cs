@@ -33,6 +33,8 @@ public sealed class DefaultAppServerProcessFactory : IAppServerProcessFactory
 {
     public Process Start()
     {
+        if (DebugOptions.ForceCliMissing)
+            throw new InvalidOperationException(Strings.Get("CodexCliNotFound"));
         var command = ResolveCodexCommand();
         var startInfo = new ProcessStartInfo
         {
@@ -50,6 +52,8 @@ public sealed class DefaultAppServerProcessFactory : IAppServerProcessFactory
 
     private static (string FileName, string Arguments) ResolveCodexCommand()
     {
+        if (File.Exists(DebugOptions.CliPathOverride))
+            return (DebugOptions.CliPathOverride!, "app-server --listen stdio://");
         if (!OperatingSystem.IsWindows())
         {
             var pathEntries = Environment.GetEnvironmentVariable("PATH")?.Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries) ?? [];
@@ -121,6 +125,8 @@ public sealed class DefaultAppServerProcessFactory : IAppServerProcessFactory
             var found = Path.Combine(directory, "codex.exe");
             if (File.Exists(found)) return (found, "app-server --listen stdio://");
         }
+        if (DebugOptions.SkipBundledCli)
+            return ("codex.exe", "app-server --listen stdio://");
         var desktopCandidates = new[]
         {
             Path.Combine(localApplicationData, "Packages", "OpenAI.Codex_*", "LocalCache", "Roaming", "codex", "codex.exe"),

@@ -12,6 +12,7 @@ internal static class Program
     [STAThread]
     public static int Main(string[] args)
     {
+        DebugOptions.Configure(args);
         var language = ParseLanguage(args);
         if (language is not null && !Localization.TrySetCulture(language))
         {
@@ -19,6 +20,7 @@ internal static class Program
             return 2;
         }
         Logger.Info($"Application starting; args={string.Join(' ', args)}.");
+        Logger.Info($"Debug options: forceCliMissing={DebugOptions.ForceCliMissing}, skipBundledCli={DebugOptions.SkipBundledCli}, cliPathOverride={DebugOptions.CliPathOverride ?? "<none>"}.");
         AppDomain.CurrentDomain.UnhandledException += (_, eventArgs) =>
         {
             if (eventArgs.ExceptionObject is Exception exception) Logger.Error("AppDomain unhandled exception", exception);

@@ -66,6 +66,7 @@
   <data name="OpenInstallPage" xml:space="preserve"><value>開啟安裝頁面</value></data>
   <data name="Cancel" xml:space="preserve"><value>取消</value></data>
   <data name="CliInstallFailed" xml:space="preserve"><value>Codex CLI 安裝失敗。</value></data>
+  <data name="DebugOptions" xml:space="preserve"><value>偵錯參數：--debug-cli-missing、--debug-skip-bundled-cli、--debug-cli-path &lt;路徑&gt;</value></data>
   <data name="ResetTimeWithDateFormat" xml:space="preserve"><value>M 月 d 日 HH:mm</value></data>
   <data name="ResetTimeFormat" xml:space="preserve"><value>HH:mm</value></data>
   <data name="TooltipPrimaryUsage" xml:space="preserve"><value>主要時段已用比例</value></data>

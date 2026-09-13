@@ -46,6 +46,21 @@ public sealed class AppServerProcessFactoryTests : IDisposable
     }
 
     [Fact]
+    public void DebugCliPathOverrideIsRecognized()
+    {
+        var executable = CreateFile("debug", "codex");
+        DebugOptions.Configure(["--debug-cli-path", executable]);
+        try
+        {
+            Assert.True(File.Exists(DebugOptions.CliPathOverride));
+        }
+        finally
+        {
+            DebugOptions.Configure([]);
+        }
+    }
+
+    [Fact]
     public void ResolvesStandardNpmDirectoryWhenGuiPathDoesNotContainIt()
     {
         var node = CreateFile("ProgramFiles", "nodejs", "node.exe");
