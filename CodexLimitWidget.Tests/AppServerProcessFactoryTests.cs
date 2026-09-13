@@ -33,6 +33,19 @@ public sealed class AppServerProcessFactoryTests : IDisposable
     }
 
     [Fact]
+    public void ResolvesPackagedDesktopCodexInstallation()
+    {
+        var root = Path.Combine(_root, "LocalAppData", "Packages", "OpenAI.Codex_123", "LocalCache", "Roaming", "codex");
+        Directory.CreateDirectory(root);
+        var executable = Path.Combine(root, "codex.exe");
+        File.WriteAllText(executable, "");
+        var command = DefaultAppServerProcessFactory.ResolveWindowsCodexCommand(
+            [], Path.Combine(_root, "AppData"), Path.Combine(_root, "LocalAppData"),
+            Path.Combine(_root, "ProgramFiles"), Path.Combine(_root, "ProgramFilesX86"));
+        Assert.Equal(executable, command.FileName);
+    }
+
+    [Fact]
     public void ResolvesStandardNpmDirectoryWhenGuiPathDoesNotContainIt()
     {
         var node = CreateFile("ProgramFiles", "nodejs", "node.exe");

@@ -53,10 +53,16 @@ public sealed class DefaultAppServerProcessFactory : IAppServerProcessFactory
         if (!OperatingSystem.IsWindows())
         {
             var pathEntries = Environment.GetEnvironmentVariable("PATH")?.Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries) ?? [];
+            var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
             var candidates = pathEntries.Select(directory => Path.Combine(directory.Trim(), "codex"))
                 .Concat(new[]
                 {
-                    Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".local", "bin", "codex"),
+                    Path.Combine(home, ".local", "bin", "codex"),
+                    Path.Combine(home, ".local", "share", "codex", "codex"),
+                    Path.Combine(home, ".local", "share", "OpenAI", "Codex", "codex"),
+                    "/Applications/Codex.app/Contents/Resources/codex",
+                    "/Applications/Codex.app/Contents/MacOS/codex",
+                    Path.Combine(home, "Applications", "Codex.app", "Contents", "Resources", "codex"),
                     "/usr/local/bin/codex",
                     "/opt/homebrew/bin/codex",
                     "/usr/bin/codex",
@@ -117,6 +123,9 @@ public sealed class DefaultAppServerProcessFactory : IAppServerProcessFactory
         }
         var desktopCandidates = new[]
         {
+            Path.Combine(localApplicationData, "Packages", "OpenAI.Codex_*", "LocalCache", "Roaming", "codex", "codex.exe"),
+            Path.Combine(localApplicationData, "Packages", "OpenAI.Codex_*", "LocalCache", "Local", "codex", "codex.exe"),
+            Path.Combine(localApplicationData, "OpenAI", "Codex", "codex.exe"),
             Path.Combine(localApplicationData, "Programs", "Codex", "codex.exe"),
             Path.Combine(localApplicationData, "Programs", "OpenAI", "Codex", "codex.exe"),
             Path.Combine(programFiles, "Codex", "codex.exe"),
@@ -124,7 +133,11 @@ public sealed class DefaultAppServerProcessFactory : IAppServerProcessFactory
             Path.Combine(programFilesX86, "Codex", "codex.exe"),
             Path.Combine(programFilesX86, "OpenAI", "Codex", "codex.exe")
         };
-        var desktopCli = desktopCandidates.FirstOrDefault(File.Exists);
+        var desktopCli = desktopCandidates
+            .SelectMany(candidate => candidate.Contains('*')
+                ? Directory.Exists(Path.GetDirectoryName(candidate) ?? "") ? Directory.GetFiles(Path.GetDirectoryName(candidate)!, Path.GetFileName(candidate)) : []
+                : [candidate])
+            .FirstOrDefault(File.Exists);
         if (desktopCli is not null) return (desktopCli, "app-server --listen stdio://");
         return ("codex.exe", "app-server --listen stdio://");
     }
